@@ -17,26 +17,25 @@ iuml = """
 {% for sbb in sbbs %}
 {% set id = sbb.Type ~ "__" ~ sbb.Name %}
 !function ${{ id }}()
-!if ("{{ sbb.BType }}" != "")
+{% if sbb.BType != "" %}
 %call_user_func("${{ sbb.BType }}__{{ sbb.BName }}")
 !$levels = $levels + 1
-!endif
+{% endif %}
 {% if sbb.Type in ["Enterprise_Boundary", "System_Boundary"] %}
 {{ sbb.Type }}({{ id }}, "{{ sbb.Label }}") {
 {% else %}
 {{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
-!if ("{{ sbb.BType }}" != "")
 $close_boundary()
-!endif
 {% endif %}
 !return {{ id }}
 !endfunction
+
 {% endfor %}
 """
 
 with open("sbb.tsv", "r") as tsv_file:
     sbbs = csv.DictReader(tsv_file, dialect="excel-tab")
-    e = jinja2.Environment()
+    e = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
     t = e.from_string(iuml)
     with open("sbb.iuml", "w") as iuml_file:
         iuml_file.write(t.render(sbbs=list(sbbs)))
@@ -59,12 +58,12 @@ views = map(lambda f: Path(f).stem, glob.glob("*-*.tsv"))
 for view in views:
     with open(f"{view}.tsv", "r") as tsv_file:
         rels = csv.DictReader(tsv_file, dialect="excel-tab")
-        e = jinja2.Environment()
+        e = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
         t = e.from_string(puml)
         with open(f"{view}.puml", "w") as puml_file:
             puml_file.write(t.render(rels=list(rels), view="Authentication"))
 
-    for format in ["svg", "png"]:
+    for format in []:
         subprocess.run(
             [
                 "java",
@@ -77,5 +76,5 @@ for view in views:
             ]
         )
 
-    webbrowser.open_new(f"{view}.svg")
+    # webbrowser.open_new(f"{view}.svg")
 
