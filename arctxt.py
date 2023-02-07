@@ -5,7 +5,10 @@ import webbrowser
 import glob
 from pathlib import Path
 
-iuml = """
+puml = """
+@startuml
+!include <C4/C4_Context>
+
 {% for id, sbb in sbbs.items() %}
 !procedure ${{ id }}()
 {% if sbb.Enterprise != "" %}
@@ -18,6 +21,22 @@ Enterprise_Boundary({{ sbb.Enterprise }}, "{{ sbbs[sbb.Enterprise].Label }}") {
 !endprocedure
 
 {% endfor %}
+
+{% set used_sbbs = [] %}
+{% for i in rels %}
+{% for id in [ i.SType ~ '_' ~ i.SName, i.DType ~ '_' ~ i.DName ]  %}
+{% if id not in used_sbbs %}
+${{ id }}()
+{{ used_sbbs.append(id) or "" }}
+{% endif %}
+{% endfor %}
+Rel({{ i.SType ~ '_' ~ i.SName  }}, {{ i.DType ~ '_' ~ i.DName }}, "{{ i.Label }}", "{{ i[view] }}")
+
+{% endfor %}
+
+'LAYOUT_LANDSCAPE()
+SHOW_LEGEND()
+@enduml
 """
 
 with open("sbb.tsv", "r") as tsv_file:
@@ -26,35 +45,15 @@ with open("sbb.tsv", "r") as tsv_file:
         id = row["Type"] + "_" + row["Name"]
         sbbs[id] = row
 
-    env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
-    template = env.from_string(iuml)
-    with open("sbb.iuml", "w") as iuml_file:
-        iuml_file.write(template.render(sbbs=sbbs))
-
-puml = """
-@startuml
-!include <C4/C4_Context>
-!include ./sbb.iuml
-
-{% for i in rels %}
-${{ i.SType ~ '_' ~ i.SName  }}()
-${{ i.DType ~ '_' ~ i.DName }}()
-Rel({{ i.SType ~ '_' ~ i.SName  }}, {{ i.DType ~ '_' ~ i.DName }}, "{{ i.Label }}", "{{ i[view] }}")
-{% endfor %}
-
-'LAYOUT_LANDSCAPE()
-SHOW_LEGEND()
-@enduml
-"""
-
 views = map(lambda f: Path(f).stem, glob.glob("*-*.tsv"))
 for view in views:
     with open(f"{view}.tsv", "r") as tsv_file:
-        rels = csv.DictReader(tsv_file, dialect="excel-tab")
-        env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
-        template = env.from_string(puml)
-        with open(f"{view}.puml", "w") as puml_file:
-            puml_file.write(template.render(rels=list(rels), view="Authentication"))
+        rels = list(csv.DictReader(tsv_file, dialect="excel-tab"))
+
+    env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
+    template = env.from_string(puml)
+    with open(f"{view}.puml", "w") as puml_file:
+        puml_file.write(template.render(sbbs=sbbs, rels=rels, view="Authentication"))
 
     for format in []:
         subprocess.run(
