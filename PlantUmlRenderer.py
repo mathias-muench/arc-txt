@@ -8,24 +8,27 @@ class PlantUmlRenderer:
 {% macro open(id) %}
 {% if id %}
 {% set sbb = sbbs[id] %}
-{{ open(sbb.Parent) }}{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}") {
+{{ open(sbb.Parent) -}}
+{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}") {
 {% endif %}
-{% endmacro %}
+{% endmacro -%}
 
 {% macro close(id) %}
 {% if id %}
 {% set sbb = sbbs[id] %}
 }
-{{ close(sbb.Parent) }}
+{{ close(sbb.Parent) -}}
 {% endif %}
-{% endmacro %}
+{% endmacro -%}
 
 {% for id in used %}
 {% set sbb = sbbs[id] %}
 !procedure ${{ id }}()
-{{ open(sbb.Parent) }}{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
-{{ close(sbb.Parent) }}
+{{ open(sbb.Parent) -}}
+{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
+{{ close(sbb.Parent) -}}
 !endprocedure
+
 {% endfor %}
 """
 
