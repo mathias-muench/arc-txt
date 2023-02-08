@@ -5,11 +5,27 @@ from SolutionBuildingBlocks import SolutionBuildingBlocks
 
 class PlantUmlRenderer:
     _sbbs_template = """
-{% for id, sbb in sbbs.items() %}
-!procedure {{ id }}()
-{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
-!endprocedure
+{% macro open(id) %}
+{% if id %}
+{% set sbb = sbbs[id] %}
+{{ open(sbb.Parent) }}{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}") {
+{% endif %}
+{% endmacro %}
 
+{% macro close(id) %}
+{% if id %}
+{% set sbb = sbbs[id] %}
+}
+{{ close(sbb.Parent) }}
+{% endif %}
+{% endmacro %}
+
+{% for id in used %}
+{% set sbb = sbbs[id] %}
+!procedure ${{ id }}()
+{{ open(sbb.Parent) }}{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
+{{ close(sbb.Parent) }}
+!endprocedure
 {% endfor %}
 """
 
@@ -45,37 +61,59 @@ SHOW_LEGEND()
 
     def _render_sbbs(self):
         template = self._env.from_string(__class__._sbbs_template)
-        return template.render(sbbs=self._solution_building_blocks.get_sbb_list())
+        return template.render(
+            sbbs=self._solution_building_blocks.sbb_list,
+            aggr=self._solution_building_blocks.get_sbb_aggr(),
+            used=["Person_sbb4", "System_sbb3"]
+        )
 
 
 class TestPlantUmlRenderer(unittest.TestCase):
     sbb_list = [
         {
             "Name": "sbb1",
-            "Type": "sbb_type1",
+            "Type": "Enterprise_Boundary",
             "Label": "sbb_label1",
             "Description": "sbb1 description",
+            "Parent": "",
         },
         {
             "Name": "sbb2",
-            "Type": "sbb_type2",
+            "Type": "Boundary",
             "Label": "sbb_label2",
             "Description": "sbb2 description",
+            "Parent": "Enterprise_Boundary_sbb1",
+        },
+        {
+            "Name": "sbb3",
+            "Type": "System",
+            "Label": "sbb_label3",
+            "Description": "sbb3 description",
+            "Parent": "Boundary_sbb2",
+        },
+        {
+            "Name": "sbb4",
+            "Type": "Person",
+            "Label": "sbb_label4",
+            "Description": "sbb4 description",
+            "Parent": "",
         },
     ]
 
     def test_render_sbbs(self):
         sbbs = SolutionBuildingBlocks(__class__.sbb_list)
         renderer = PlantUmlRenderer(sbbs)
+        print(renderer._render_sbbs()),
+        return
         self.assertEqual(
             renderer._render_sbbs(),
             """
-!procedure sbb_type1_sbb1()
-sbb_type1(sbb_type1_sbb1, "sbb_label1", "sbb1 description")
+!procedure Enterprise_Boundary_sbb1()
+Enterprise_Boundary(Enterprise_Boundary_sbb1, "sbb_label1", "sbb1 description")
 !endprocedure
 
-!procedure sbb_type2_sbb2()
-sbb_type2(sbb_type2_sbb2, "sbb_label2", "sbb2 description")
+!procedure Boundary_sbb2()
+Boundary(Boundary_sbb2, "sbb_label2", "sbb2 description")
 !endprocedure
 
 """,

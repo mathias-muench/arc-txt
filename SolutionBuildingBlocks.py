@@ -8,10 +8,7 @@ class SolutionBuildingBlocks:
             id = row["Type"] + "_" + row["Name"]
             self.sbb_list[id] = row
 
-    def get_sbb_list(self):
-        return self.sbb_list
-
-    def get_sbb_tree(self):
+    def get_sbb_aggr(self):
         tree = {}
         for x, y in [(k, v["Parent"]) for k, v in self.sbb_list.items()]:
             if y in tree:
@@ -20,40 +17,33 @@ class SolutionBuildingBlocks:
                 tree[y] = [x]
         return tree
 
-    def _tree_walk(self, tree):
-        for key, value in tree.items():
-            if isinstance(value, dict):
-                print(key + " {")
-                self._tree_walk(value)
-                print("}")
-
 
 class TestSolutionBuildingBlocks(unittest.TestCase):
     sbb_list = [
         {
             "Name": "sbb1",
-            "Type": "sbb_type1",
+            "Type": "Enterprise_Boundary",
             "Label": "sbb_label1",
             "Description": "sbb1 description",
             "Parent": "",
         },
         {
             "Name": "sbb2",
-            "Type": "sbb_type2",
+            "Type": "Boundary",
             "Label": "sbb_label2",
             "Description": "sbb2 description",
-            "Parent": "sbb_type1_sbb1",
+            "Parent": "Enterprise_Boundary_sbb1",
         },
         {
             "Name": "sbb3",
-            "Type": "sbb_type3",
+            "Type": "System",
             "Label": "sbb_label3",
             "Description": "sbb3 description",
-            "Parent": "sbb_type2_sbb2",
+            "Parent": "Boundary_sbb2",
         },
         {
             "Name": "sbb4",
-            "Type": "sbb_type4",
+            "Type": "Person",
             "Label": "sbb_label4",
             "Description": "sbb4 description",
             "Parent": "",
@@ -61,42 +51,42 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
     ]
 
     sbb_tree = {
-        "": ["sbb_type1_sbb1", "sbb_type4_sbb4"],
-        "sbb_type1_sbb1": ["sbb_type2_sbb2"],
-        "sbb_type2_sbb2": ["sbb_type3_sbb3"],
+        "": ["Enterprise_Boundary_sbb1", "Person_sbb4"],
+        "Enterprise_Boundary_sbb1": ["Boundary_sbb2"],
+        "Boundary_sbb2": ["System_sbb3"],
     }
 
     def setUp(self):
         self.solution_building_blocks = SolutionBuildingBlocks(__class__.sbb_list)
 
-    def test_get_sbb_list(self):
+    def test_sbb_list(self):
         self.assertEqual(
-            self.solution_building_blocks.get_sbb_list(),
+            self.solution_building_blocks.sbb_list,
             {
-                "sbb_type1_sbb1": {
+                "Enterprise_Boundary_sbb1": {
                     "Name": "sbb1",
-                    "Type": "sbb_type1",
+                    "Type": "Enterprise_Boundary",
                     "Label": "sbb_label1",
                     "Description": "sbb1 description",
                     "Parent": "",
                 },
-                "sbb_type2_sbb2": {
+                "Boundary_sbb2": {
                     "Name": "sbb2",
-                    "Type": "sbb_type2",
+                    "Type": "Boundary",
                     "Label": "sbb_label2",
                     "Description": "sbb2 description",
-                    "Parent": "sbb_type1_sbb1",
+                    "Parent": "Enterprise_Boundary_sbb1",
                 },
-                "sbb_type3_sbb3": {
+                "System_sbb3": {
                     "Name": "sbb3",
-                    "Type": "sbb_type3",
+                    "Type": "System",
                     "Label": "sbb_label3",
                     "Description": "sbb3 description",
-                    "Parent": "sbb_type2_sbb2",
+                    "Parent": "Boundary_sbb2",
                 },
-                "sbb_type4_sbb4": {
+                "Person_sbb4": {
                     "Name": "sbb4",
-                    "Type": "sbb_type4",
+                    "Type": "Person",
                     "Label": "sbb_label4",
                     "Description": "sbb4 description",
                     "Parent": "",
@@ -104,21 +94,8 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
             },
         )
 
-    def test_get_sbb_tree(self):
+    def test_get_sbb_aggr(self):
         self.assertEqual(
-            self.solution_building_blocks.get_sbb_tree(),
+            self.solution_building_blocks.get_sbb_aggr(),
             __class__.sbb_tree,
-        )
-
-    def test__tree_walk(self):
-        self.assertEqual(
-            self.solution_building_blocks._tree_walk(
-                tree=self.solution_building_blocks.get_sbb_tree()
-            ),
-            [
-                ("sbb_type1_sbb1", "open"),
-                ("sbb_type2_sbb2", "print"),
-                ("sbb_type1_sbb1", "close"),
-                ("sbb_type3_sbb3", "print"),
-            ],
         )
