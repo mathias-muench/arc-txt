@@ -23,12 +23,9 @@ class PlantUmlRenderer:
 
 {% for id in used %}
 {% set sbb = sbbs[id] %}
-!procedure ${{ id }}()
 {{ open(sbb.Parent) -}}
 {{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
-{{ close(sbb.Parent) -}}
-!endprocedure
-
+{{ close(sbb.Parent) }}
 {% endfor %}
 """
 
