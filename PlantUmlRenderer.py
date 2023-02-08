@@ -5,8 +5,8 @@ from SolutionBuildingBlocks import SolutionBuildingBlocks
 
 class PlantUmlRenderer:
     _sbbs_template = """
-{% for sbb in sbbs %}
-{{ sbb.Type }}({{ sbb.Name }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
+{% for id, sbb in sbbs.items() %}
+{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
 {% endfor %}
 """
 
@@ -67,7 +67,7 @@ class TestPlantUmlRenderer(unittest.TestCase):
         self.assertEqual(
             renderer._render_sbbs(),
             """
-sbb_type1(sbb1, "sbb_label1", "sbb1 description")
-sbb_type2(sbb2, "sbb_label2", "sbb2 description")
+sbb_type1(sbb_type1_sbb1, "sbb_label1", "sbb1 description")
+sbb_type2(sbb_type2_sbb2, "sbb_label2", "sbb2 description")
 """,
         )
