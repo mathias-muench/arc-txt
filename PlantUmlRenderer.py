@@ -6,7 +6,10 @@ from SolutionBuildingBlocks import SolutionBuildingBlocks
 class PlantUmlRenderer:
     _sbbs_template = """
 {% for id, sbb in sbbs.items() %}
+!procedure {{ id }}()
 {{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
+!endprocedure
+
 {% endfor %}
 """
 
@@ -67,7 +70,13 @@ class TestPlantUmlRenderer(unittest.TestCase):
         self.assertEqual(
             renderer._render_sbbs(),
             """
+!procedure sbb_type1_sbb1()
 sbb_type1(sbb_type1_sbb1, "sbb_label1", "sbb1 description")
+!endprocedure
+
+!procedure sbb_type2_sbb2()
 sbb_type2(sbb_type2_sbb2, "sbb_label2", "sbb2 description")
+!endprocedure
+
 """,
         )
