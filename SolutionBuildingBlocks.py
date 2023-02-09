@@ -5,18 +5,10 @@ class SolutionBuildingBlocks:
     def __init__(self, sbb_list):
         self.sbb_list = {}
         for row in sbb_list:
+            if row["Type"] == "System":
+                row["Parent"] = "Enterprise_" + row["Parent"]
             id = row["Type"] + "_" + row["Name"]
             self.sbb_list[id] = row
-
-    def get_sbb_aggr(self):
-        tree = {}
-        for x, y in [(k, v["Parent"]) for k, v in self.sbb_list.items()]:
-            if y in tree:
-                tree[y].append(x)
-            else:
-                tree[y] = [x]
-        return tree
-
 
 class TestSolutionBuildingBlocks(unittest.TestCase):
     sbb_list = [
@@ -92,10 +84,4 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
                     "Parent": "",
                 },
             },
-        )
-
-    def test_get_sbb_aggr(self):
-        self.assertEqual(
-            self.solution_building_blocks.get_sbb_aggr(),
-            __class__.sbb_tree,
         )

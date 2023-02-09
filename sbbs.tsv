@@ -1,0 +1,4 @@
+Name	Type	Label	Description	Parent
+c0	Enterprise	Big Bank plc		
+customer	Person	Personal Banking Customer	A customer of the bank, with personal bank accounts.	
+banking_system	System	Internet Banking System	Allows customers to view information about their bank accounts, and make payments.	c0

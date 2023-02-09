@@ -5,11 +5,15 @@ from SolutionBuildingBlocks import SolutionBuildingBlocks
 
 class PlantUmlRenderer:
     _sbbs_template = """
+{% set boundaries = {
+"Enterprise": "Enterprise_Boundary",
+}
+%}
 {% macro open(id) %}
 {% if id %}
 {% set sbb = sbbs[id] %}
 {{ open(sbb.Parent) -}}
-{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}") {
+{{ boundaries[sbb.Type] }}({{ id }}, "{{ sbb.Label }}") {
 {% endif %}
 {% endmacro -%}
 
@@ -72,7 +76,7 @@ SHOW_LEGEND()
     def __init__(self, solution_building_blocks, architecture_views: list):
         self._solution_building_blocks = solution_building_blocks
         self._architecture_views = architecture_views
-        self._used = ["Person_sbb4", "System_sbb3"]
+        self._used = ["Person_customer", "System_banking_system"]
         self._env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
 
     def _render_sbbs(self):
@@ -87,6 +91,9 @@ SHOW_LEGEND()
         return template.render(
             views=self._architecture_views,
         )
+
+    def render(self):
+        return self._render_sbbs() + self._render_views()
 
 
 class TestPlantUmlRenderer(unittest.TestCase):
