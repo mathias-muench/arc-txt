@@ -29,6 +29,16 @@ class PlantUmlRenderer:
 {% endfor %}
 """
 
+    _views_template = """
+{% for view in views %}
+Rel(\
+{{ view.SType ~ '_' ~ view.SName  }},\
+{{ view.DType ~ '_' ~ view.DName }},\
+"{{ view.Label }}"\
+)
+{% endfor %}
+"""
+
     _puml = """@startuml
 !include <C4/C4_Context>
 
@@ -47,7 +57,11 @@ Enterprise_Boundary({{ sbb.Enterprise }}, "{{ sbbs[sbb.Enterprise].Label }}") {
 {{ used_sbbs.append(id) or "" }}
 {% endif %}
 {% endfor %}
-Rel({{ i.SType ~ '_' ~ i.SName  }}, {{ i.DType ~ '_' ~ i.DName }}, "{{ i.Label }}", "{{ i[view] }}")
+Rel(\
+    {{ i.SType ~ '_' ~ i.SName  }},\
+    {{ i.DType ~ '_' ~ i.DName }},\
+    "{{ i.Label }}", "{{ i[view] }}"\
+)
 
 {% endfor %}
 
@@ -55,16 +69,23 @@ Rel({{ i.SType ~ '_' ~ i.SName  }}, {{ i.DType ~ '_' ~ i.DName }}, "{{ i.Label }
 SHOW_LEGEND()
 @enduml"""
 
-    def __init__(self, solution_building_blocks):
+    def __init__(self, solution_building_blocks, architecture_views: list):
         self._solution_building_blocks = solution_building_blocks
+        self._architecture_views = architecture_views
+        self._used = ["Person_sbb4", "System_sbb3"]
         self._env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
 
     def _render_sbbs(self):
         template = self._env.from_string(__class__._sbbs_template)
         return template.render(
             sbbs=self._solution_building_blocks.sbb_list,
-            aggr=self._solution_building_blocks.get_sbb_aggr(),
-            used=["Person_sbb4", "System_sbb3"]
+            used=self._used
+        )
+
+    def _render_views(self):
+        template = self._env.from_string(__class__._views_template)
+        return template.render(
+            views=self._architecture_views,
         )
 
 
@@ -100,21 +121,40 @@ class TestPlantUmlRenderer(unittest.TestCase):
         },
     ]
 
+    views = [
+        {
+            "SType": "Person",
+            "SName": "sbb4",
+            "Desination": "System_sbb3",
+            "DType": "System",
+            "DName": "sbb3",
+            "Label": "view_label1",
+        }
+    ]
+
     def test_render_sbbs(self):
         sbbs = SolutionBuildingBlocks(__class__.sbb_list)
-        renderer = PlantUmlRenderer(sbbs)
-        print(renderer._render_sbbs()),
-        return
+        renderer = PlantUmlRenderer(sbbs, __class__.views)
         self.assertEqual(
             renderer._render_sbbs(),
             """
-!procedure Enterprise_Boundary_sbb1()
-Enterprise_Boundary(Enterprise_Boundary_sbb1, "sbb_label1", "sbb1 description")
-!endprocedure
+Person(Person_sbb4, "sbb_label4", "sbb4 description")
 
-!procedure Boundary_sbb2()
-Boundary(Boundary_sbb2, "sbb_label2", "sbb2 description")
-!endprocedure
+Enterprise_Boundary(Enterprise_Boundary_sbb1, "sbb_label1") {
+Boundary(Boundary_sbb2, "sbb_label2") {
+System(System_sbb3, "sbb_label3", "sbb3 description")
+}
+}
 
+""",
+        )
+
+    def test_render_views(self):
+        views = self.views
+        renderer = PlantUmlRenderer(views, __class__.views)
+        self.assertEqual(
+            renderer._render_views(),
+            """
+Rel(Person_sbb4,System_sbb3,"view_label1")
 """,
         )
