@@ -11,6 +11,15 @@ def read_tsv(filename: str) -> list:
 
 if __name__ == "__main__":
     sbbs = SolutionBuildingBlocks(read_tsv("sbbs.tsv"))
-    view = read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv")
+    view = list()
+    for i in read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"):
+        view.append(
+            {
+                "Source": (i["SType"], i["SName"]),
+                "Destination": (i["DType"], i["DName"]),
+                "Label": i["Label"],
+            }
+        )
+
     renderer = PlantUmlRenderer(sbbs, view)
     print(renderer.render()),
