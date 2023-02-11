@@ -29,7 +29,7 @@ class PlantUmlRenderer:
 {% for id in used %}
 {% set sbb = sbbs[id] %}
 {{ open(sbb.Parent) -}}
-{{ sbb.Type }}({{ "_".join(id) }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
+{{ sbb.Type }}({{ "_".join(id) }}, "{{ sbb.Label }}", "{{ sbb.Description }}", $tags="{{ tags[id] }}")
 {{ close(sbb.Parent) }}
 {% endfor %}
 """
@@ -56,12 +56,15 @@ Rel(\
         self._solution_building_blocks = solution_building_blocks
         self._architecture_views = architecture_views
         self._used = self._find_used_sbbs()
+        self._tags = {("System", "banking_system"): "gap"}
         self._env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
 
     def _render_sbbs(self):
         template = self._env.from_string(__class__._sbbs_template)
         return template.render(
-            sbbs=self._solution_building_blocks.sbb_list, used=self._used
+            sbbs=self._solution_building_blocks.sbb_list,
+            used=self._used,
+            tags=self._tags,
         )
 
     def _render_views(self):
