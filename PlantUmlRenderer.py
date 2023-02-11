@@ -44,40 +44,18 @@ Rel(\
 {% endfor %}
 """
 
-    _puml = """@startuml
-!include <C4/C4_Context>
-
-{% set used_sbbs = [] %}
-{% for i in rels %}
-{% for id in [ i.SType ~ '_' ~ i.SName, i.DType ~ '_' ~ i.DName ]  %}
-{% if id not in used_sbbs %}
-{% set sbb = sbbs[id] %}
-{% if sbb.Enterprise != "" %}
-Enterprise_Boundary({{ sbb.Enterprise }}, "{{ sbbs[sbb.Enterprise].Label }}") {
-{% endif %}
-{{ sbb.Type }}({{ id }}, "{{ sbb.Label }}", "{{ sbb.Description }}")
-{% if sbb.Enterprise != "" %}
-}
-{% endif %}
-{{ used_sbbs.append(id) or "" }}
-{% endif %}
-{% endfor %}
-Rel(\
-    {{ i.SType ~ '_' ~ i.SName  }},\
-    {{ i.DType ~ '_' ~ i.DName }},\
-    "{{ i.Label }}", "{{ i[view] }}"\
-)
-
-{% endfor %}
-
-'LAYOUT_LANDSCAPE()
-SHOW_LEGEND()
-@enduml"""
+    def _find_used_sbbs(self) -> list:
+        used = list()
+        for view in self._architecture_views:
+            for i in ["Source", "Destination"]:
+                if view[i] not in used:
+                    used.append(view[i])
+        return used
 
     def __init__(self, solution_building_blocks, architecture_views: list):
         self._solution_building_blocks = solution_building_blocks
         self._architecture_views = architecture_views
-        self._used = [("Person", "sbb4"), ("System", "banking_system")]
+        self._used = self._find_used_sbbs()
         self._env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
 
     def _render_sbbs(self):
@@ -136,12 +114,14 @@ class TestPlantUmlRenderer(unittest.TestCase):
         }
     ]
 
-    def test_render_sbbs(self):
+    def setUp(self):
         self.maxDiff = None
         sbbs = SolutionBuildingBlocks(__class__.sbb_list)
-        renderer = PlantUmlRenderer(sbbs, __class__.views)
+        self.renderer = PlantUmlRenderer(sbbs, __class__.views)
+
+    def test_render_sbbs(self):
         self.assertEqual(
-            renderer._render_sbbs(),
+            self.renderer._render_sbbs(),
             """
 Person(Person_sbb4, "sbb_label4", "sbb4 description")
 
@@ -155,10 +135,8 @@ System(System_banking_system, "sbb_label3", "banking_system description")
         )
 
     def test_render_views(self):
-        views = self.views
-        renderer = PlantUmlRenderer(views, __class__.views)
         self.assertEqual(
-            renderer._render_views(),
+            self.renderer._render_views(),
             """
 Rel(Person_sbb4,System_banking_system,"view_label1")
 """,
