@@ -1,49 +1,10 @@
 import unittest
-import jinja2
+from jinja2 import Environment, FileSystemLoader
 from SolutionBuildingBlocks import SolutionBuildingBlocks
+import os
 
 
 class PlantUmlRenderer:
-    _sbbs_template = """
-{% set boundaries = {
-"Enterprise": "Enterprise_Boundary",
-"Boundary": "Boundary",
-}
-%}
-{% macro open(id) %}
-{% if id %}
-{% set sbb = sbbs[id] %}
-{{ open(sbb.Parent) -}}
-{{ boundaries[sbb.Type] }}({{ "_".join(id) }}, "{{ sbb.Label }}") {
-{% endif %}
-{% endmacro -%}
-
-{% macro close(id) %}
-{% if id %}
-{% set sbb = sbbs[id] %}
-}
-{{ close(sbb.Parent) -}}
-{% endif %}
-{% endmacro -%}
-
-{% for id in used %}
-{% set sbb = sbbs[id] %}
-{{ open(sbb.Parent) -}}
-{{ sbb.Type }}({{ "_".join(id) }}, "{{ sbb.Label }}", "{{ sbb.Description }}", $tags="{{ tags[id] }}")
-{{ close(sbb.Parent) }}
-{% endfor %}
-"""
-
-    _views_template = """
-{% for view in views %}
-Rel(\
-{{ "_".join(view.Source) }},\
-{{ "_".join(view.Destination) }},\
-"{{ view.Label }}"\
-)
-{% endfor %}
-"""
-
     def _find_used_sbbs(self) -> list:
         used = list()
         for view in self._architecture_views:
@@ -57,19 +18,21 @@ Rel(\
         self._architecture_views = architecture_views
         self._used = self._find_used_sbbs()
         self._tags = {("System", "banking_system"): "gap"}
-        self._env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True)
+        self._env = Environment(
+            loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
 
     def _render_sbbs(self):
-        template = self._env.from_string(__class__._sbbs_template)
-        return template.render(
+        return self._env.get_template("sbbs.j2").render(
             sbbs=self._solution_building_blocks.sbb_list,
             used=self._used,
             tags=self._tags,
         )
 
     def _render_views(self):
-        template = self._env.from_string(__class__._views_template)
-        return template.render(
+        return self._env.get_template("views.j2").render(
             views=self._architecture_views,
         )
 
