@@ -1,5 +1,6 @@
 import csv
 from SolutionBuildingBlocks import SolutionBuildingBlocks
+from Relations import Relations
 from PlantUmlRenderer import PlantUmlRenderer
 
 
@@ -11,15 +12,6 @@ def read_tsv(filename: str) -> list:
 
 if __name__ == "__main__":
     sbbs = SolutionBuildingBlocks(read_tsv("sbbs.tsv"))
-    view = list()
-    for i in read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"):
-        view.append(
-            {
-                "Source": (i["SType"], i["SName"]),
-                "Destination": (i["DType"], i["DName"]),
-                "Label": i["Label"],
-            }
-        )
-
-    renderer = PlantUmlRenderer(sbbs, view)
+    rels = Relations(read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"))
+    renderer = PlantUmlRenderer(sbbs, rels)
     print(renderer.render()),
