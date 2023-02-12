@@ -1,7 +1,8 @@
 import csv
-from SolutionBuildingBlocks import SolutionBuildingBlocks
-from Relations import Relations
+
 from PlantUmlRenderer import PlantUmlRenderer
+from Relations import Relations
+from SolutionBuildingBlocks import SolutionBuildingBlocks
 
 
 def read_tsv(filename: str) -> list:
@@ -14,4 +15,5 @@ if __name__ == "__main__":
     sbbs = SolutionBuildingBlocks(read_tsv("sbbs.tsv"))
     rels = Relations(read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"))
     renderer = PlantUmlRenderer(sbbs, rels)
-    print(renderer.render())
+    with open("C4_Context Diagram Sample - bigbankplc-landscape.puml", "w") as f:
+        f.write(renderer.render_puml())

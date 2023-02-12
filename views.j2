@@ -1,0 +1,3 @@
+{% for view in views %}
+Rel({{ "_".join(view.Source) }}, {{ "_".join(view.Destination) }}, "{{ view.Label }}")
+{% endfor %}

@@ -8,7 +8,7 @@ import os
 class PlantUmlRenderer:
     def _find_used_sbbs(self) -> list:
         used = list()
-        for view in self.relations.rels:
+        for view in self._relations.rels:
             for i in ["Source", "Destination"]:
                 if view[i] not in used:
                     used.append(view[i])
@@ -16,7 +16,7 @@ class PlantUmlRenderer:
 
     def __init__(self, solution_building_blocks, relations: Relations):
         self._solution_building_blocks = solution_building_blocks
-        self.relations = relations
+        self._relations = relations
         self._used = self._find_used_sbbs()
         self._tags = {("System", "banking_system"): "gap"}
         self._env = Environment(
@@ -34,11 +34,14 @@ class PlantUmlRenderer:
 
     def _render_views(self):
         return self._env.get_template("views.j2").render(
-            views=self.relations.rels,
+            views=self._relations.rels,
         )
 
-    def render(self):
+    def render_iuml(self):
         return self._render_sbbs() + self._render_views()
+
+    def render_puml(self, wrapper="wrapper.j2"):
+        return self._env.get_template(wrapper).render(text=self.render_iuml())
 
 
 class TestPlantUmlRenderer(unittest.TestCase):
@@ -107,6 +110,5 @@ System(System_banking_system, "sbb_label3", "banking_system description")
     def test_render_views(self):
         self.assertEqual(
             self.renderer._render_views(),
-            """Rel(Person_sbb4, System_banking_system, "view_label1")
-""",
+            """Rel(Person_sbb4, System_banking_system, "view_label1")""",
         )

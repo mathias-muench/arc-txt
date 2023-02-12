@@ -1,0 +1,27 @@
+{% set boundaries = {
+"Enterprise": "Enterprise_Boundary",
+"Boundary": "Boundary",
+}
+%}
+{% macro open(id) %}
+{% if id %}
+{% set sbb = sbbs[id] %}
+{{ open(sbb.Parent) -}}
+{{ boundaries[sbb.Type] }}({{ "_".join(id) }}, "{{ sbb.Label }}") {
+{% endif %}
+{% endmacro -%}
+
+{% macro close(id) %}
+{% if id %}
+{% set sbb = sbbs[id] %}
+}
+{{ close(sbb.Parent) -}}
+{% endif %}
+{% endmacro -%}
+
+{% for id in used %}
+{% set sbb = sbbs[id] %}
+{{ open(sbb.Parent) -}}
+{{ sbb.Type }}({{ "_".join(id) }}, "{{ sbb.Label }}", "{{ sbb.Description }}", $tags="{{ tags[id] }}")
+{{ close(sbb.Parent) }}
+{% endfor %}
