@@ -6,18 +6,9 @@ import os
 
 
 class PlantUmlRenderer:
-    def _find_used_sbbs(self) -> list:
-        used = list()
-        for view in self._relations.rels:
-            for i in ["Source", "Destination"]:
-                if view[i] not in used:
-                    used.append(view[i])
-        return used
-
     def __init__(self, solution_building_blocks, relations: Relations):
         self._solution_building_blocks = solution_building_blocks
         self._relations = relations
-        self._used = self._find_used_sbbs()
         self._tags = {("System", "banking_system"): "gap"}
         self._env = Environment(
             loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),
@@ -28,7 +19,7 @@ class PlantUmlRenderer:
     def _render_sbbs(self):
         return self._env.get_template("sbbs.j2").render(
             sbbs=self._solution_building_blocks.sbb_list,
-            used=self._used,
+            used=self._relations.used_sbbs(),
             tags=self._tags,
         )
 
