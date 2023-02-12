@@ -3,6 +3,7 @@ import csv
 from PlantUmlRenderer import PlantUmlRenderer
 from Relations import Relations
 from SolutionBuildingBlocks import SolutionBuildingBlocks
+from ArcGaps import ArcGaps
 
 
 def read_tsv(filename: str) -> list:
@@ -13,7 +14,9 @@ def read_tsv(filename: str) -> list:
 
 if __name__ == "__main__":
     sbbs = SolutionBuildingBlocks(read_tsv("sbbs.tsv"))
+    base = Relations(read_tsv("baseline.tsv"))
     rels = Relations(read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"))
-    renderer = PlantUmlRenderer(sbbs, rels)
+    gaps = ArcGaps(base, rels)
+    renderer = PlantUmlRenderer(sbbs, rels, gaps)
     with open("C4_Context Diagram Sample - bigbankplc-landscape.puml", "w") as f:
         f.write(renderer.render_puml())

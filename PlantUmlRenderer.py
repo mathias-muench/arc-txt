@@ -2,14 +2,20 @@ import unittest
 from jinja2 import Environment, FileSystemLoader
 from SolutionBuildingBlocks import SolutionBuildingBlocks
 from Relations import Relations
+from ArcGaps import ArcGaps
 import os
 
 
 class PlantUmlRenderer:
-    def __init__(self, solution_building_blocks, relations: Relations):
+    def __init__(
+        self, solution_building_blocks, relations: Relations, gaps: ArcGaps = None
+    ):
         self._solution_building_blocks = solution_building_blocks
         self._relations = relations
-        self._tags = {("System", "banking_system"): "gap"}
+        self._tags = dict()
+        if gaps:
+            for i in gaps.gaps():
+                self._tags[i] = "gap"
         self._env = Environment(
             loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),
             trim_blocks=True,
@@ -17,6 +23,7 @@ class PlantUmlRenderer:
         )
 
     def _render_sbbs(self):
+        print(self._tags)
         return self._env.get_template("sbbs.j2").render(
             sbbs=self._solution_building_blocks.sbb_list,
             used=self._relations.used_sbbs(),

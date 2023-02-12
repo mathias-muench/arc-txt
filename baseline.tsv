@@ -1,3 +1,2 @@
 SType	SName	DType	DName	Label
 Person	customer	System	banking_system	Uses
-Person	customer	System	atm	Withdraws cash using
