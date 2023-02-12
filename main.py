@@ -14,4 +14,4 @@ if __name__ == "__main__":
     sbbs = SolutionBuildingBlocks(read_tsv("sbbs.tsv"))
     rels = Relations(read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"))
     renderer = PlantUmlRenderer(sbbs, rels)
-    print(renderer.render()),
+    print(renderer.render())

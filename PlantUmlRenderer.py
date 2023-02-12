@@ -1,21 +1,22 @@
 import unittest
 from jinja2 import Environment, FileSystemLoader
 from SolutionBuildingBlocks import SolutionBuildingBlocks
+from Relations import Relations
 import os
 
 
 class PlantUmlRenderer:
     def _find_used_sbbs(self) -> list:
         used = list()
-        for view in self._architecture_views:
+        for view in self.relations.rels:
             for i in ["Source", "Destination"]:
                 if view[i] not in used:
                     used.append(view[i])
         return used
 
-    def __init__(self, solution_building_blocks, architecture_views: list):
+    def __init__(self, solution_building_blocks, relations: Relations):
         self._solution_building_blocks = solution_building_blocks
-        self._architecture_views = architecture_views
+        self.relations = relations
         self._used = self._find_used_sbbs()
         self._tags = {("System", "banking_system"): "gap"}
         self._env = Environment(
@@ -33,7 +34,7 @@ class PlantUmlRenderer:
 
     def _render_views(self):
         return self._env.get_template("views.j2").render(
-            views=self._architecture_views,
+            views=self.relations.rels,
         )
 
     def render(self):
@@ -74,8 +75,10 @@ class TestPlantUmlRenderer(unittest.TestCase):
 
     views = [
         {
-            "Source": ("Person", "sbb4"),
-            "Destination": ("System", "banking_system"),
+            "SType": "Person",
+            "SName": "sbb4",
+            "DType": "System",
+            "DName": "banking_system",
             "Label": "view_label1",
         }
     ]
@@ -83,7 +86,8 @@ class TestPlantUmlRenderer(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
         sbbs = SolutionBuildingBlocks(__class__.sbb_list)
-        self.renderer = PlantUmlRenderer(sbbs, __class__.views)
+        rels = Relations(__class__.views)
+        self.renderer = PlantUmlRenderer(sbbs, rels)
 
     def test_render_sbbs(self):
         self.assertEqual(
@@ -103,7 +107,6 @@ System(System_banking_system, "sbb_label3", "banking_system description")
     def test_render_views(self):
         self.assertEqual(
             self.renderer._render_views(),
-            """
-Rel(Person_sbb4,System_banking_system,"view_label1")
+            """Rel(Person_sbb4, System_banking_system, "view_label1")
 """,
         )
