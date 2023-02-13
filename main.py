@@ -17,6 +17,10 @@ if __name__ == "__main__":
     base = Relations(read_tsv("baseline.tsv"))
     rels = Relations(read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"))
     gaps = ArcGaps(base, rels)
-    renderer = PlantUmlRenderer(sbbs, rels, gaps)
+    renderer = PlantUmlRenderer("landscape", sbbs, rels, gaps)
     with open("C4_Context Diagram Sample - bigbankplc-landscape.puml", "w") as f:
+        f.write(renderer.render_puml())
+    rels = Relations(read_tsv("C4_Container Diagram Sample - bigbankplc.tsv"))
+    renderer = PlantUmlRenderer("container", sbbs, rels, gaps)
+    with open("C4_Container Diagram Sample - bigbankplc.puml", "w") as f:
         f.write(renderer.render_puml())

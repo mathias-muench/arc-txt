@@ -6,6 +6,7 @@ class SolutionBuildingBlocks:
         parent_map = {
             "Person": "Enterprise",
             "System": "Enterprise",
+            "Container": "System",
             "Enterprise": "Boundary",
             "Boundary": "Boundary",
         }

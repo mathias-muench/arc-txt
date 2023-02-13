@@ -3,3 +3,4 @@ c0	Enterprise	Big Bank plc
 customer	Person	Personal Banking Customer	A customer of the bank, with personal bank accounts.		
 banking_system	System	Internet Banking System	Allows customers to view information about their bank accounts, and make payments.	c0	
 atm	System	ATM	Allows customers to withdraw cash.	c0	
+web_app	Container	Web Application	Delivers the static content and the Internet banking SPA	banking_system	

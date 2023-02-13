@@ -8,8 +8,13 @@ import os
 
 class PlantUmlRenderer:
     def __init__(
-        self, solution_building_blocks, relations: Relations, gaps: ArcGaps = None
+        self,
+        diagram,
+        solution_building_blocks,
+        relations: Relations,
+        gaps: ArcGaps = None,
     ):
+        self.diagram = diagram
         self._solution_building_blocks = solution_building_blocks
         self._relations = relations
         self.gaps = gaps
@@ -24,8 +29,8 @@ class PlantUmlRenderer:
         if self.gaps:
             for i in self.gaps.sbb_gaps():
                 _tags[i] = "gap"
-        print(_tags)
         return self._env.get_template("sbbs.j2").render(
+            diagram=self.diagram,
             sbbs=self._solution_building_blocks.sbb_list,
             used=self._relations.used_sbbs(),
             tags=_tags,
@@ -36,8 +41,8 @@ class PlantUmlRenderer:
         if self.gaps:
             for i in self.gaps.rel_gaps():
                 _tags[i] = "gap"
-        print(_tags)
         return self._env.get_template("views.j2").render(
+            diagram=self.diagram,
             views=self._relations.rels,
             tags=_tags,
         )

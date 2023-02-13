@@ -1,6 +1,7 @@
 {% set boundaries = {
 "Enterprise": "Enterprise_Boundary",
 "Boundary": "Boundary",
+"System": "System_Boundary",
 }
 %}
 {% macro open(id) %}
@@ -22,6 +23,6 @@
 {% for id in used %}
 {% set sbb = sbbs[id] %}
 {{ open(sbb.Parent) -}}
-{{ sbb.Type }}({{ "_".join(id) }}, "{{ sbb.Label }}", "{{ sbb.Description }}", $tags="{{ tags[id] }}")
+{{ sbb.Type }}({{ "_".join(id) }}, "{{ sbb.Label }}", $descr="{{ sbb.Description }}", $tags="{{ tags[id] }}")
 {{ close(sbb.Parent) }}
 {% endfor %}
