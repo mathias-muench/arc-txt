@@ -42,7 +42,7 @@ class TestArcGaps(unittest.TestCase):
             "DType": "System",
             "DName": "ATM",
             "Label": "view_label2",
-        }
+        },
     ]
 
     def setUp(self):
@@ -51,16 +51,10 @@ class TestArcGaps(unittest.TestCase):
         target = Relations(__class__.target_rels)
         self.gaps = ArcGaps(baseline, target)
 
-    def test_gaps(self):
+    def test_sbb_gaps(self):
         self.assertEqual(self.gaps.sbb_gaps(), [("System", "ATM")])
 
     def test_rel_gaps(self):
-        self.assertEqual(self.gaps.rel_gaps(), [
-            {
-                "SType": "Person",
-                "SName": "sbb4",
-                "DType": "System",
-                "DName": "ATM",
-                "Label": "view_label2",
-            }
-        ])
+        self.assertEqual(
+            self.gaps.rel_gaps(), [(("Person", "sbb4"), ("System", "ATM"))]
+        )

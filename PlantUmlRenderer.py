@@ -12,10 +12,7 @@ class PlantUmlRenderer:
     ):
         self._solution_building_blocks = solution_building_blocks
         self._relations = relations
-        self._tags = dict()
-        if gaps:
-            for i in gaps.sbb_gaps():
-                self._tags[i] = "gap"
+        self.gaps = gaps
         self._env = Environment(
             loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),
             trim_blocks=True,
@@ -23,16 +20,26 @@ class PlantUmlRenderer:
         )
 
     def _render_sbbs(self):
-        print(self._tags)
+        _tags = dict()
+        if self.gaps:
+            for i in self.gaps.sbb_gaps():
+                _tags[i] = "gap"
+        print(_tags)
         return self._env.get_template("sbbs.j2").render(
             sbbs=self._solution_building_blocks.sbb_list,
             used=self._relations.used_sbbs(),
-            tags=self._tags,
+            tags=_tags,
         )
 
     def _render_views(self):
+        _tags = dict()
+        if self.gaps:
+            for i in self.gaps.rel_gaps():
+                _tags[i] = "gap"
+        print(_tags)
         return self._env.get_template("views.j2").render(
             views=self._relations.rels,
+            tags=_tags,
         )
 
     def render_iuml(self):
