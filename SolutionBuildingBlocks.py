@@ -3,13 +3,17 @@ import unittest
 
 class SolutionBuildingBlocks:
     def __init__(self, sbb_list):
+        parent_map = {
+            "Person": "Enterprise",
+            "System": "Enterprise",
+            "Enterprise": "Boundary",
+            "Boundary": "Boundary",
+        }
         self.sbb_list = {}
         for row in sbb_list:
-            if row["Parent"]:
-                if row["Type"] == "System":
-                    row["Parent"] = ("Enterprise", row["Parent"])
-                else:
-                    row["Parent"] = ("Boundary", row["Parent"])
+            row["Parent"] = (
+                (parent_map[row["Type"]], row["Parent"]) if row["Parent"] else ""
+            )
             id = (row["Type"], row["Name"])
             self.sbb_list[id] = row
 
@@ -28,14 +32,14 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
             "Type": "Boundary",
             "Label": "sbb_label2",
             "Description": "sbb2 description",
-            "Parent":  "sbb1",
+            "Parent": "sbb1",
         },
         {
             "Name": "sbb3",
             "Type": "System",
             "Label": "sbb_label3",
             "Description": "sbb3 description",
-            "Parent":  "sbb2",
+            "Parent": "sbb2",
         },
         {
             "Name": "sbb4",
