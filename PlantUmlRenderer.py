@@ -14,7 +14,7 @@ class PlantUmlRenderer:
         self._relations = relations
         self._tags = dict()
         if gaps:
-            for i in gaps.gaps():
+            for i in gaps.sbb_gaps():
                 self._tags[i] = "gap"
         self._env = Environment(
             loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),

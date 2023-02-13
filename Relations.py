@@ -3,22 +3,22 @@ import unittest
 
 class Relations:
     def __init__(self, relations: list):
-        self.rels = list()
+        self.rels = dict()
         for i in relations:
-            self.rels.append(
-                {
-                    "Source": (i["SType"], i["SName"]),
-                    "Destination": (i["DType"], i["DName"]),
+            s = (i["SType"], i["SName"])
+            d = (i["DType"], i["DName"])
+            self.rels[(s, d)] = {
+                    "Source": (s),
+                    "Destination": (d),
                     "Label": i["Label"],
                 }
-            )
 
     def used_sbbs(self) -> list:
         used = list()
-        for rel in self.rels:
-            for i in ["Source", "Destination"]:
-                if rel[i] not in used:
-                    used.append(rel[i])
+        for s, d in self.rels.keys():
+            for i in [s, d]:
+                if i not in used:
+                    used.append(i)
         return used
 
 

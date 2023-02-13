@@ -7,9 +7,14 @@ class ArcGaps:
         self.baseline = baseline
         self.target = target
 
-    def gaps(self):
+    def sbb_gaps(self):
         b = set(self.baseline.used_sbbs())
         t = set(self.target.used_sbbs())
+        return list(t - b)
+
+    def rel_gaps(self):
+        b = set(self.baseline.rels)
+        t = set(self.target.rels)
         return list(t - b)
 
 
@@ -20,7 +25,7 @@ class TestArcGaps(unittest.TestCase):
             "SName": "sbb4",
             "DType": "System",
             "DName": "banking_system",
-            "Label": "view_label1",
+            "Label": "view_label1a",
         }
     ]
     target_rels = [
@@ -29,7 +34,7 @@ class TestArcGaps(unittest.TestCase):
             "SName": "sbb4",
             "DType": "System",
             "DName": "banking_system",
-            "Label": "view_label1",
+            "Label": "view_label1b",
         },
         {
             "SType": "Person",
@@ -47,4 +52,15 @@ class TestArcGaps(unittest.TestCase):
         self.gaps = ArcGaps(baseline, target)
 
     def test_gaps(self):
-        self.assertEqual(self.gaps.gaps(), [("System", "ATM")])
+        self.assertEqual(self.gaps.sbb_gaps(), [("System", "ATM")])
+
+    def test_rel_gaps(self):
+        self.assertEqual(self.gaps.rel_gaps(), [
+            {
+                "SType": "Person",
+                "SName": "sbb4",
+                "DType": "System",
+                "DName": "ATM",
+                "Label": "view_label2",
+            }
+        ])
