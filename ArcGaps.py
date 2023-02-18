@@ -21,26 +21,20 @@ class ArcGaps:
 class TestArcGaps(unittest.TestCase):
     baseline_rels = [
         {
-            "SType": "Person",
-            "SName": "sbb4",
-            "DType": "System",
-            "DName": "banking_system",
+            "Source": "Person:sbb4:1",
+            "Destination": "System:banking_system:1",
             "Label": "view_label1a",
         }
     ]
     target_rels = [
         {
-            "SType": "Person",
-            "SName": "sbb4",
-            "DType": "System",
-            "DName": "banking_system",
+            "Source": "Person:sbb4:1",
+            "Destination": "System:banking_system:1",
             "Label": "view_label1b",
         },
         {
-            "SType": "Person",
-            "SName": "sbb4",
-            "DType": "System",
-            "DName": "ATM",
+            "Source": "Person:sbb4:1",
+            "Destination": "System:ATM:1",
             "Label": "view_label2",
         },
     ]
@@ -52,9 +46,9 @@ class TestArcGaps(unittest.TestCase):
         self.gaps = ArcGaps(baseline, target)
 
     def test_sbb_gaps(self):
-        self.assertEqual(self.gaps.sbb_gaps(), [("System", "ATM")])
+        self.assertEqual(self.gaps.sbb_gaps(), [("System", "ATM", "1")])
 
     def test_rel_gaps(self):
         self.assertEqual(
-            self.gaps.rel_gaps(), [(("Person", "sbb4"), ("System", "ATM"))]
+            self.gaps.rel_gaps(), [(("Person", "sbb4", "1"), ("System", "ATM", "1"))]
         )

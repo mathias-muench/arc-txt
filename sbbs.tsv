@@ -1,6 +1,6 @@
-Name	Type	Label	Description	Parent	
-c0	Enterprise	Big Bank plc			
-customer	Person	Personal Banking Customer	A customer of the bank, with personal bank accounts.		
-banking_system	System	Internet Banking System	Allows customers to view information about their bank accounts, and make payments.	c0	
-atm	System	ATM	Allows customers to withdraw cash.	c0	
-web_app	Container	Web Application	Delivers the static content and the Internet banking SPA	banking_system	
+Name	Type	Version	Label	Description	Parent	
+c0	Enterprise	1	Big Bank plc			
+customer	Person	1	Personal Banking Customer	A customer of the bank, with personal bank accounts.		
+banking_system	System	1	Internet Banking System	Allows customers to view information about their bank accounts, and make payments.	c0:1	
+atm	System	1	ATM	Allows customers to withdraw cash.	c0:1	
+web_app	Container	1	Web Application	Delivers the static content and the Internet banking SPA	banking_system:1	

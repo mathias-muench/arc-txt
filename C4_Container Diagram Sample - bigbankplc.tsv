@@ -1,2 +1,2 @@
-SType	SName	DType	DName	Label
-Person	customer	Container	web_app	Uses
+Source	Destination	Label
+Person:customer:1	Container:web_app:1	Uses

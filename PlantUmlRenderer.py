@@ -59,6 +59,7 @@ class TestPlantUmlRenderer(unittest.TestCase):
         {
             "Name": "sbb1",
             "Type": "Boundary",
+            "Version": "1",
             "Label": "sbb_label1",
             "Description": "sbb1 description",
             "Parent": "",
@@ -66,20 +67,23 @@ class TestPlantUmlRenderer(unittest.TestCase):
         {
             "Name": "sbb2",
             "Type": "Enterprise",
+            "Version": "1",
             "Label": "sbb_label2",
             "Description": "sbb2 description",
-            "Parent": "sbb1",
+            "Parent": "sbb1:1",
         },
         {
-            "Name": "banking_system",
+            "Name": "sbb3",
             "Type": "System",
+            "Version": "1",
             "Label": "sbb_label3",
-            "Description": "banking_system description",
-            "Parent": "sbb2",
+            "Description": "sbb3 description",
+            "Parent": "sbb2:1",
         },
         {
             "Name": "sbb4",
             "Type": "Person",
+            "Version": "1",
             "Label": "sbb_label4",
             "Description": "sbb4 description",
             "Parent": "",
@@ -88,10 +92,8 @@ class TestPlantUmlRenderer(unittest.TestCase):
 
     views = [
         {
-            "SType": "Person",
-            "SName": "sbb4",
-            "DType": "System",
-            "DName": "banking_system",
+            "Source": "Person:sbb4:1",
+            "Destination": "System:sbb3:1",
             "Label": "view_label1",
         }
     ]
@@ -100,17 +102,17 @@ class TestPlantUmlRenderer(unittest.TestCase):
         self.maxDiff = None
         sbbs = SolutionBuildingBlocks(__class__.sbb_list)
         rels = Relations(__class__.views)
-        self.renderer = PlantUmlRenderer(sbbs, rels)
+        self.renderer = PlantUmlRenderer("landscape", sbbs, rels)
 
     def test_render_sbbs(self):
         self.assertEqual(
             self.renderer._render_sbbs(),
             """
-Person(Person_sbb4, "sbb_label4", "sbb4 description")
+Person(Person_sbb4, "sbb_label4", $descr="sbb4 description", $tags="")
 
 Boundary(Boundary_sbb1, "sbb_label1") {
 Enterprise_Boundary(Enterprise_sbb2, "sbb_label2") {
-System(System_banking_system, "sbb_label3", "banking_system description")
+System(System_sbb3, "sbb_label3", $descr="sbb3 description", $tags="")
 }
 }
 
@@ -120,5 +122,6 @@ System(System_banking_system, "sbb_label3", "banking_system description")
     def test_render_views(self):
         self.assertEqual(
             self.renderer._render_views(),
-            """Rel(Person_sbb4, System_banking_system, "view_label1")""",
+            """Rel(Person_sbb4, System_sbb3, "view_label1", $tags="")
+""",
         )

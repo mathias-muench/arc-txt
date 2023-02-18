@@ -1,3 +1,3 @@
-SType	SName	DType	DName	Label
-Person	customer	System	banking_system	Uses
-Person	customer	System	atm	Withdraws cash using
+Source	Destination	Label
+Person:customer:1	System:banking_system:1	Uses
+Person:customer:1	System:atm:1	Withdraws cash using

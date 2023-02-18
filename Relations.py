@@ -5,13 +5,13 @@ class Relations:
     def __init__(self, relations: list):
         self.rels = dict()
         for i in relations:
-            s = (i["SType"], i["SName"])
-            d = (i["DType"], i["DName"])
+            s = tuple(i["Source"].split(":"))
+            d = tuple(i["Destination"].split(":"))
             self.rels[(s, d)] = {
-                    "Source": (s),
-                    "Destination": (d),
-                    "Label": i["Label"],
-                }
+                "Source": s,
+                "Destination": d,
+                "Label": i["Label"],
+            }
 
     def used_sbbs(self) -> list:
         used = list()
@@ -26,31 +26,23 @@ class TestRelations(unittest.TestCase):
     def test_used_sbbs(self):
         relations = [
             {
-                "SType": "SBB",
-                "SName": "SBB1",
-                "DType": "SBB",
-                "DName": "SBB2",
+                "Source": "SBB:SBB1:1",
+                "Destination": "SBB:SBB2:1",
                 "Label": "Label1",
             },
             {
-                "SType": "SBB",
-                "SName": "SBB1",
-                "DType": "SBB",
-                "DName": "SBB3",
+                "Source": "SBB:SBB1:1",
+                "Destination": "SBB:SBB3:1",
                 "Label": "Label2",
             },
             {
-                "SType": "SBB",
-                "SName": "SBB2",
-                "DType": "SBB",
-                "DName": "SBB3",
+                "Source": "SBB:SBB2:1",
+                "Destination": "SBB:SBB3:1",
                 "Label": "Label3",
             },
             {
-                "SType": "SBB",
-                "SName": "SBB4",
-                "DType": "SBB",
-                "DName": "SBB5",
+                "Source": "SBB:SBB4:1",
+                "Destination": "SBB:SBB5:1",
                 "Label": "Label4",
             },
         ]
@@ -58,10 +50,10 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(
             rels.used_sbbs(),
             [
-                ("SBB", "SBB1"),
-                ("SBB", "SBB2"),
-                ("SBB", "SBB3"),
-                ("SBB", "SBB4"),
-                ("SBB", "SBB5"),
+                ("SBB", "SBB1", "1"),
+                ("SBB", "SBB2", "1"),
+                ("SBB", "SBB3", "1"),
+                ("SBB", "SBB4", "1"),
+                ("SBB", "SBB5", "1"),
             ],
         )
