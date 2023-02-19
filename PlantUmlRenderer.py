@@ -4,7 +4,6 @@ from SolutionBuildingBlocks import SolutionBuildingBlocks
 from Relations import Relations
 from ArcGaps import ArcGaps
 import os
-from semantic_version import Version, SimpleSpec
 
 
 class PlantUmlRenderer:
@@ -24,15 +23,6 @@ class PlantUmlRenderer:
             trim_blocks=True,
             lstrip_blocks=True,
         )
-        self._env.filters["get_sbb"] = self.get_sbb
-
-    @staticmethod
-    def get_sbb(value, id) -> tuple:
-        versions = [
-            Version(i[2]) for i in value if i[0] == id[0] and i[1] == id[1]
-        ]
-        v = SimpleSpec(id[2]).select(versions)
-        return value[(id[0], id[1], str(v))] if v else None
 
     def _render_sbbs(self):
         _tags = dict()
@@ -69,7 +59,7 @@ class TestPlantUmlRenderer(unittest.TestCase):
         {
             "Name": "sbb1",
             "Type": "Boundary",
-            "Version": "1.0.0",
+            "Version": "1",
             "Label": "sbb_label1",
             "Description": "sbb1 description",
             "Parent": "",
@@ -77,31 +67,31 @@ class TestPlantUmlRenderer(unittest.TestCase):
         {
             "Name": "sbb2",
             "Type": "Enterprise",
-            "Version": "1.0.0",
+            "Version": "1",
             "Label": "sbb_label2",
             "Description": "sbb2 description",
-            "Parent": "sbb1:1.0.0",
+            "Parent": "sbb1:1",
         },
         {
             "Name": "sbb3",
             "Type": "System",
-            "Version": "1.0.0",
+            "Version": "1",
             "Label": "sbb_label3",
             "Description": "sbb3 description",
-            "Parent": "sbb2:1.0.0",
+            "Parent": "sbb2:1",
         },
         {
             "Name": "sbb3",
             "Type": "System",
-            "Version": "2.0.0",
+            "Version": "2",
             "Label": "sbb_label3",
             "Description": "sbb3 description",
-            "Parent": "sbb2:1.0.0",
+            "Parent": "sbb2:1",
         },
         {
             "Name": "sbb4",
             "Type": "Person",
-            "Version": "1.0.0",
+            "Version": "1",
             "Label": "sbb_label4",
             "Description": "sbb4 description",
             "Parent": "",
@@ -110,8 +100,8 @@ class TestPlantUmlRenderer(unittest.TestCase):
 
     views = [
         {
-            "Source": "Person:sbb4:>0",
-            "Destination": "System:sbb3:>1",
+            "Source": "Person:sbb4:1",
+            "Destination": "System:sbb3:2",
             "Label": "view_label1",
         }
     ]
