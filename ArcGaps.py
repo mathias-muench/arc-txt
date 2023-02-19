@@ -29,7 +29,7 @@ class TestArcGaps(unittest.TestCase):
     target_rels = [
         {
             "Source": "Person:sbb4:1",
-            "Destination": "System:banking_system:1",
+            "Destination": "System:banking_system:2",
             "Label": "view_label1b",
         },
         {
@@ -46,7 +46,10 @@ class TestArcGaps(unittest.TestCase):
         self.gaps = ArcGaps(baseline, target)
 
     def test_sbb_gaps(self):
-        self.assertEqual(self.gaps.sbb_gaps(), [("System", "ATM", "1")])
+        self.assertEqual(
+            self.gaps.sbb_gaps(),
+            [("System", "ATM", "1"), ("System", "banking_system", "2")],
+        )
 
     def test_rel_gaps(self):
         self.assertEqual(
