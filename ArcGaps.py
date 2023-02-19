@@ -7,34 +7,34 @@ class ArcGaps:
         self.baseline = baseline
         self.target = target
 
-    def sbb_gaps(self):
+    def sbb_gaps(self) -> set:
         b = set(self.baseline.used_sbbs())
         t = set(self.target.used_sbbs())
-        return list(t - b)
+        return t - b
 
-    def rel_gaps(self):
+    def rel_gaps(self) -> set:
         b = set(self.baseline.rels)
         t = set(self.target.rels)
-        return list(t - b)
+        return t - b
 
 
 class TestArcGaps(unittest.TestCase):
     baseline_rels = [
         {
-            "Source": "Person:sbb4:1",
-            "Destination": "System:banking_system:1",
+            "Source": "Person:sbb4:>0",
+            "Destination": "System:banking_system:>0",
             "Label": "view_label1a",
         }
     ]
     target_rels = [
         {
-            "Source": "Person:sbb4:1",
-            "Destination": "System:banking_system:2",
+            "Source": "Person:sbb4:>0",
+            "Destination": "System:banking_system:>1",
             "Label": "view_label1b",
         },
         {
-            "Source": "Person:sbb4:1",
-            "Destination": "System:ATM:1",
+            "Source": "Person:sbb4:>0",
+            "Destination": "System:ATM:>0",
             "Label": "view_label2",
         },
     ]
@@ -46,12 +46,18 @@ class TestArcGaps(unittest.TestCase):
         self.gaps = ArcGaps(baseline, target)
 
     def test_sbb_gaps(self):
-        self.assertEqual(
+        self.assertSetEqual(
             self.gaps.sbb_gaps(),
-            [("System", "ATM", "1"), ("System", "banking_system", "2")],
+            set([("System", "ATM", ">0"), ("System", "banking_system", ">1")]),
         )
 
     def test_rel_gaps(self):
-        self.assertEqual(
-            self.gaps.rel_gaps(), [(("Person", "sbb4", "1"), ("System", "ATM", "1"))]
+        self.assertSetEqual(
+            self.gaps.rel_gaps(),
+            set(
+                [
+                    (("Person", "sbb4", ">0"), ("System", "ATM", ">0")),
+                    (("Person", "sbb4", ">0"), ("System", "banking_system", ">1")),
+                ]
+            ),
         )

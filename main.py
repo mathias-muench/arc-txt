@@ -15,6 +15,9 @@ def read_tsv(filename: str) -> list:
 if __name__ == "__main__":
     sbbs = SolutionBuildingBlocks(read_tsv("sbbs.tsv"))
     base = Relations(read_tsv("baseline.tsv"))
+    renderer = PlantUmlRenderer("landscape", sbbs, base)
+    with open("baseline.puml", "w") as f:
+        f.write(renderer.render_puml())
     rels = Relations(read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"))
     gaps = ArcGaps(base, rels)
     renderer = PlantUmlRenderer("landscape", sbbs, rels, gaps)

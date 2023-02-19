@@ -22,7 +22,7 @@
 {% endmacro -%}
 
 {% for id in used %}
-{% set sbb = sbbs[id] %}
+{% set sbb = sbbs | get_sbb(id) %}
 {{ open(sbb.Parent) -}}
 {{ sbb.Type }}({{ "_".join(id[:-1]) }}, "{{ sbb.Label }}", $descr="{{ sbb.Description }}", $tags="{{ tags[id] }}")
 {{ close(sbb.Parent) }}

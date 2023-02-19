@@ -1,3 +1,5 @@
 Source	Destination	Label
-Person:customer:1	System:banking_system:2	Uses
-Person:customer:1	System:atm:1	Withdraws cash using
+Person:customer:>0	System:banking_system:>0	Uses
+System:banking_system:>0	System:mainframe:>0	Uses
+Person:customer:>0	System:atm:>0	Withdraws cash using
+System:atm:>0	System:mainframe:>1	Uses
