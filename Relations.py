@@ -5,13 +5,9 @@ class Relations:
     def __init__(self, relations: list):
         self.rels = dict()
         for i in relations:
-            s = tuple(i["Source"].split(":"))
-            d = tuple(i["Destination"].split(":"))
-            self.rels[(s, d)] = {
-                "Source": s,
-                "Destination": d,
-                "Label": i["Label"],
-            }
+            i["Source"] = tuple(i["Source"].split(":"))
+            i["Destination"] = tuple(i["Destination"].split(":"))
+            self.rels[(i["Source"], i["Destination"])] = i
 
     def used_sbbs(self) -> list:
         coll = dict()

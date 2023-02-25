@@ -44,6 +44,7 @@ class PlantUmlRenderer:
         return self._env.get_template("views.j2").render(
             diagram=self.diagram,
             views=self._relations.rels,
+            techn="Authentication",
             tags=_tags,
         )
 
