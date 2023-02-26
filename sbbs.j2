@@ -28,6 +28,11 @@
 {% set sbb = sbbs[id] %}
 {% set parent = rels.aggregations | selectattr(0, "equalto", id) | map(attribute=1) | first %}
 {{ open(parent) -}}
-{{ sbb.Type }}({{ "_".join(id[:-1]) }}, "{{ sbb.Label }}", $descr="{{ sbb.Description }}", $tags="{{ tags[id] }}")
+{{ sbb.Type }}({{ "_".join(id[:-1]) }}, "{{ sbb.Label }}", $descr="{{ sbb.Description }}", $tags="{{ sbb_tags[id] }}")
 {{ close(parent) }}
+{% endfor %}
+
+{% for id in rels.rels | reject("in", rels.aggregations) %}
+{% set rel = rels.rels[id] %}
+Rel({{ "_".join(rel.Source[:-1]) }}, {{ "_".join(rel.Destination[:-1]) }}, "{{ rel.Label }}", $techn="{{ rel[techn] }}", $tags="{{ rel_tags[id] }}")
 {% endfor %}

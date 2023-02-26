@@ -11,48 +11,36 @@ class PlantUmlRenderer:
         self,
         diagram,
         solution_building_blocks,
-        relations: Relations,
         gaps: ArcGaps = None,
+        wrapper="wrapper.j2",
     ):
         self.diagram = diagram
         self._solution_building_blocks = solution_building_blocks
-        self._relations = relations
         self.gaps = gaps
+        self.wrapper = wrapper
         self._env = Environment(
             loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),
             trim_blocks=True,
             lstrip_blocks=True,
         )
 
-    def _render_sbbs(self):
-        _tags = dict()
-        if self.gaps:
-            for i in self.gaps.sbb_gaps():
-                _tags[i] = "gap"
+    def _render_sbbs(self, rels):
         return self._env.get_template("sbbs.j2").render(
             diagram=self.diagram,
-            sbbs=self._solution_building_blocks.sbb_list,
-            rels=self._relations,
-            tags=_tags,
-        )
-
-    def _render_views(self):
-        _tags = dict()
-        if self.gaps:
-            for i in self.gaps.rel_gaps():
-                _tags[i] = "gap"
-        return self._env.get_template("views.j2").render(
-            diagram=self.diagram,
-            rels=self._relations,
             techn="Authentication",
-            tags=_tags,
+            sbbs=self._solution_building_blocks.sbb_list,
+            rels=rels,
+            sbb_tags={i: "gap" for i in self.gaps.sbb_gaps()} if self.gaps else None,
+            rel_tags={i: "gap" for i in self.gaps.rel_gaps()} if self.gaps else None,
         )
 
-    def render_iuml(self):
-        return self._render_sbbs() + self._render_views()
-
-    def render_puml(self, wrapper="wrapper.j2"):
-        return self._env.get_template(wrapper).render(text=self.render_iuml())
+    def render(self, rels) -> str:
+        text = self._render_sbbs(rels)
+        return (
+            self._env.get_template(self.wrapper).render(text=text)
+            if self.wrapper
+            else text
+        )
 
 
 class TestPlantUmlRenderer(unittest.TestCase):
@@ -109,18 +97,16 @@ class TestPlantUmlRenderer(unittest.TestCase):
             "Source": "Enterprise:sbb2:1",
             "Destination": "Boundary:sbb1:1",
             "Label": "__Aggregation__",
-        }
+        },
     ]
 
-    def setUp(self):
+    def test_render(self):
         self.maxDiff = None
-        sbbs = SolutionBuildingBlocks(__class__.sbb_list)
         rels = Relations(__class__.views)
-        self.renderer = PlantUmlRenderer("landscape", sbbs, rels)
-
-    def test_render_sbbs(self):
+        sbbs = SolutionBuildingBlocks(__class__.sbb_list)
+        renderer = PlantUmlRenderer("landscape", sbbs, wrapper=None)
         self.assertEqual(
-            self.renderer._render_sbbs(),
+            rels.render(renderer),
             """
 Person(Person_sbb4, "sbb_label4", $descr="sbb4 description", $tags="")
 
@@ -130,12 +116,7 @@ System(System_sbb3, "sbb_label3", $descr="sbb3 description", $tags="")
 }
 }
 
-""",
-        )
 
-    def test_render_views(self):
-        self.assertEqual(
-            self.renderer._render_views(),
-            """Rel(Person_sbb4, System_sbb3, "view_label1", $techn="", $tags="")
+Rel(Person_sbb4, System_sbb3, "view_label1", $techn="", $tags="")
 """,
         )

@@ -15,15 +15,12 @@ def read_tsv(filename: str) -> list:
 if __name__ == "__main__":
     sbbs = SolutionBuildingBlocks(read_tsv("sbbs.tsv"))
     base = Relations(read_tsv("baseline.tsv"))
-    renderer = PlantUmlRenderer("landscape", sbbs, base)
     with open("baseline.puml", "w") as f:
-        f.write(renderer.render_puml())
+        f.write(base.render(PlantUmlRenderer("landscape", sbbs)))
     rels = Relations(read_tsv("C4_Context Diagram Sample - bigbankplc-landscape.tsv"))
     gaps = ArcGaps(base, rels)
-    renderer = PlantUmlRenderer("landscape", sbbs, rels, gaps)
     with open("C4_Context Diagram Sample - bigbankplc-landscape.puml", "w") as f:
-        f.write(renderer.render_puml())
+        f.write(rels.render(PlantUmlRenderer("landscape", sbbs, gaps)))
     rels = Relations(read_tsv("C4_Container Diagram Sample - bigbankplc.tsv"))
-    renderer = PlantUmlRenderer("container", sbbs, rels, gaps)
     with open("C4_Container Diagram Sample - bigbankplc.puml", "w") as f:
-        f.write(renderer.render_puml())
+        f.write(rels.render(PlantUmlRenderer("landscape", sbbs, gaps)))

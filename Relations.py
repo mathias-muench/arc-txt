@@ -11,6 +11,9 @@ class Relations:
             self.rels[(row["Source"], row["Destination"])] = row
         self.aggregations = self._aggregations()
 
+    def render(self, renderer):
+        return renderer.render(self)
+
     def _aggregations(self) -> set:
         return {
             (i["Source"], i["Destination"])
@@ -32,7 +35,7 @@ class Relations:
         return {**owns, **uses}
 
     def used_sbbs(self) -> list:
-        coll = dict()
+        coll: dict = dict()
         for s, d in self.rels.keys():
             for t, n, v in [s, d]:
                 if (t, n) not in coll:
