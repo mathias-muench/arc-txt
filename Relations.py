@@ -18,6 +18,19 @@ class Relations:
             if i["Label"] == "__Aggregation__"
         }
 
+    def system_organization_matrix(self) -> dict:
+        owns = {
+            (i["Destination"], i["Source"]): "owns"
+            for i in self.rels.values()
+            if i["Source"][0] == "System" and i["Destination"][0] == "Enterprise"
+        }
+        uses = {
+            ({s: e for e, s in owns}[i["Source"]], i["Destination"]): "uses"
+            for i in self.rels.values()
+            if i["Source"][0] == "System" and i["Destination"][0] == "System"
+        }
+        return {**owns, **uses}
+
     def used_sbbs(self) -> list:
         coll = dict()
         for s, d in self.rels.keys():
@@ -85,4 +98,42 @@ class TestRelations(unittest.TestCase):
         rels = Relations(relations)
         self.assertSetEqual(
             rels.aggregations, {(("SBB", "SBB1", "1"), ("SBB", "SBB2", "1"))}
+        )
+
+    def test_system_organization_matrix(self):
+        relations = [
+            {
+                "Source": "System:SBB1:1",
+                "Destination": "Enterprise:SBB2:1",
+                "Label": "__Aggregation__",
+            },
+            {
+                "Source": "System:SBB1:1",
+                "Destination": "System:SBB3:1",
+                "Label": "Label2",
+            },
+            {
+                "Source": "System:SBB3:1",
+                "Destination": "Enterprise:SBB4:1",
+                "Label": "__Aggregation__",
+            },
+            {
+                "Source": "System:SBB1:1",
+                "Destination": "Container:SBB5:1",
+                "Label": "Label2",
+            },
+            {
+                "Source": "Container:SBB2:2",
+                "Destination": "System:SBB1:1",
+                "Label": "__Aggregation__",
+            },
+        ]
+        rels = Relations(relations)
+        self.assertDictEqual(
+            rels.system_organization_matrix(),
+            {
+                (("Enterprise", "SBB2", "1"), ("System", "SBB1", "1")): "owns",
+                (("Enterprise", "SBB4", "1"), ("System", "SBB3", "1")): "owns",
+                (("Enterprise", "SBB2", "1"), ("System", "SBB3", "1")): "uses",
+            },
         )
