@@ -9,13 +9,14 @@ class Relations:
             row["Source"] = tuple(i["Source"].split(":"))
             row["Destination"] = tuple(i["Destination"].split(":"))
             self.rels[(row["Source"], row["Destination"])] = row
+        self.aggregations = self._aggregations()
 
-    def aggregations(self) -> list:
-        return [
+    def _aggregations(self) -> set:
+        return {
             (i["Source"], i["Destination"])
             for i in self.rels.values()
             if i["Label"] == "__Aggregation__"
-        ]
+        }
 
     def used_sbbs(self) -> list:
         coll = dict()
@@ -82,6 +83,6 @@ class TestRelations(unittest.TestCase):
             },
         ]
         rels = Relations(relations)
-        self.assertListEqual(
-            rels.aggregations(), [(("SBB", "SBB1", "1"), ("SBB", "SBB2", "1"))]
+        self.assertSetEqual(
+            rels.aggregations, {(("SBB", "SBB1", "1"), ("SBB", "SBB2", "1"))}
         )

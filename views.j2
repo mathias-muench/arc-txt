@@ -1,4 +1,4 @@
-{% for id in rels.rels | reject("in", rels.aggregations()) %}
+{% for id in rels.rels | reject("in", rels.aggregations) %}
 {% set rel = rels.rels[id] %}
 Rel({{ "_".join(rel.Source[:-1]) }}, {{ "_".join(rel.Destination[:-1]) }}, "{{ rel.Label }}", $techn="{{ rel[techn] }}", $tags="{{ tags[id] }}")
 {% endfor %}
