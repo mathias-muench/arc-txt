@@ -1,3 +1,5 @@
 Source	Destination	Label
 Person:customer:1	System:banking_system:1	Uses
 System:banking_system:1	System:mainframe:1	Uses
+System:banking_system:1	Enterprise:c0:1	__Aggregation__
+System:mainframe:1	Enterprise:c0:1	__Aggregation__

@@ -3,3 +3,6 @@ Person:customer:1	System:banking_system:1	Uses
 System:banking_system:1	System:mainframe:1	Uses
 Person:customer:1	System:atm:1	Withdraws cash using
 System:atm:1	System:mainframe:2	Uses
+System:banking_system:1	Enterprise:c0:1	__Aggregation__
+System:atm:1	Enterprise:c0:1	__Aggregation__
+System:mainframe:2	Enterprise:c0:1	__Aggregation__

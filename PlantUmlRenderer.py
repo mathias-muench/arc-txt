@@ -32,7 +32,7 @@ class PlantUmlRenderer:
         return self._env.get_template("sbbs.j2").render(
             diagram=self.diagram,
             sbbs=self._solution_building_blocks.sbb_list,
-            used=self._relations.used_sbbs(),
+            rels=self._relations,
             tags=_tags,
         )
 
@@ -43,7 +43,7 @@ class PlantUmlRenderer:
                 _tags[i] = "gap"
         return self._env.get_template("views.j2").render(
             diagram=self.diagram,
-            views=self._relations.rels,
+            rels=self._relations,
             techn="Authentication",
             tags=_tags,
         )
@@ -63,7 +63,6 @@ class TestPlantUmlRenderer(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label1",
             "Description": "sbb1 description",
-            "Parent": "",
         },
         {
             "Name": "sbb2",
@@ -71,7 +70,6 @@ class TestPlantUmlRenderer(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label2",
             "Description": "sbb2 description",
-            "Parent": "sbb1:1",
         },
         {
             "Name": "sbb3",
@@ -79,7 +77,6 @@ class TestPlantUmlRenderer(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label3",
             "Description": "sbb3 description",
-            "Parent": "sbb2:1",
         },
         {
             "Name": "sbb3",
@@ -87,7 +84,6 @@ class TestPlantUmlRenderer(unittest.TestCase):
             "Version": "2",
             "Label": "sbb_label3",
             "Description": "sbb3 description",
-            "Parent": "sbb2:1",
         },
         {
             "Name": "sbb4",
@@ -95,7 +91,6 @@ class TestPlantUmlRenderer(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label4",
             "Description": "sbb4 description",
-            "Parent": "",
         },
     ]
 
@@ -104,6 +99,16 @@ class TestPlantUmlRenderer(unittest.TestCase):
             "Source": "Person:sbb4:1",
             "Destination": "System:sbb3:2",
             "Label": "view_label1",
+        },
+        {
+            "Source": "System:sbb3:2",
+            "Destination": "Enterprise:sbb2:1",
+            "Label": "__Aggregation__",
+        },
+        {
+            "Source": "Enterprise:sbb2:1",
+            "Destination": "Boundary:sbb1:1",
+            "Label": "__Aggregation__",
         }
     ]
 
@@ -131,6 +136,6 @@ System(System_sbb3, "sbb_label3", $descr="sbb3 description", $tags="")
     def test_render_views(self):
         self.assertEqual(
             self.renderer._render_views(),
-            """Rel(Person_sbb4, System_sbb3, "view_label1", $tags="")
+            """Rel(Person_sbb4, System_sbb3, "view_label1", $techn="", $tags="")
 """,
         )

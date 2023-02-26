@@ -3,23 +3,11 @@ import unittest
 
 class SolutionBuildingBlocks:
     def __init__(self, sbb_list):
-        parent_map = {
-            "Person": "Enterprise",
-            "System": "Enterprise",
-            "Container": "System",
-            "Enterprise": "Boundary",
-            "Boundary": "Boundary",
-        }
         self.sbb_list = {}
         for i in sbb_list:
             row = {}
             for j in i.keys():
                 row[j] = i[j]
-            row["Parent"] = (
-                tuple([parent_map[i["Type"]]] + i["Parent"].split(":"))
-                if i["Parent"]
-                else tuple()
-            )
             id = (i["Type"], i["Name"], i["Version"])
             self.sbb_list[id] = row
 
@@ -32,7 +20,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label1",
             "Description": "sbb1 description",
-            "Parent": "",
         },
         {
             "Name": "sbb2",
@@ -40,7 +27,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label2",
             "Description": "sbb2 description",
-            "Parent": "sbb1:1",
         },
         {
             "Name": "sbb3",
@@ -48,7 +34,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label3",
             "Description": "sbb3 description",
-            "Parent": "sbb2:1",
         },
         {
             "Name": "sbb4",
@@ -56,7 +41,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
             "Version": "1",
             "Label": "sbb_label4",
             "Description": "sbb4 description",
-            "Parent": "",
         },
     ]
 
@@ -74,7 +58,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
                     "Version": "1",
                     "Label": "sbb_label1",
                     "Description": "sbb1 description",
-                    "Parent": (),
                 },
                 ("Enterprise", "sbb2", "1"): {
                     "Name": "sbb2",
@@ -82,7 +65,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
                     "Version": "1",
                     "Label": "sbb_label2",
                     "Description": "sbb2 description",
-                    "Parent": ("Boundary", "sbb1", "1"),
                 },
                 ("System", "sbb3", "1"): {
                     "Name": "sbb3",
@@ -90,7 +72,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
                     "Version": "1",
                     "Label": "sbb_label3",
                     "Description": "sbb3 description",
-                    "Parent": ("Enterprise", "sbb2", "1"),
                 },
                 ("Person", "sbb4", "1"): {
                     "Name": "sbb4",
@@ -98,7 +79,6 @@ class TestSolutionBuildingBlocks(unittest.TestCase):
                     "Version": "1",
                     "Label": "sbb_label4",
                     "Description": "sbb4 description",
-                    "Parent": (),
                 },
             },
         )

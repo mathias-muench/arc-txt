@@ -1,2 +1,3 @@
 Source	Destination	Label
 Person:customer:1	Container:web_app:1	Uses
+Container:web_app:1	System:banking_system:1	__Aggregation__

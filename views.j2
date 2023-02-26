@@ -1,3 +1,4 @@
-{% for k, v in views.items() %}
-Rel({{ "_".join(v.Source[:-1]) }}, {{ "_".join(v.Destination[:-1]) }}, "{{ v.Label }}", $techn="{{ v[techn] }}", $tags="{{ tags[k] }}")
+{% for id in rels.rels | reject("in", rels.aggregations()) %}
+{% set rel = rels.rels[id] %}
+Rel({{ "_".join(rel.Source[:-1]) }}, {{ "_".join(rel.Destination[:-1]) }}, "{{ rel.Label }}", $techn="{{ rel[techn] }}", $tags="{{ tags[id] }}")
 {% endfor %}
