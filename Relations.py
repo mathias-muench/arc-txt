@@ -32,7 +32,7 @@ class Relations:
             for i in self.rels.values()
             if i["Source"][0] == "System" and i["Destination"][0] == "System"
         }
-        return {**owns, **uses}
+        return {**uses, **owns}
 
     def used_sbbs(self) -> list:
         coll: dict = dict()

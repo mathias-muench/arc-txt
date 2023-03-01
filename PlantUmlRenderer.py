@@ -6,7 +6,17 @@ from ArcGaps import ArcGaps
 import os
 
 
-class PlantUmlRenderer:
+class Renderer:
+    def render(self, rels):
+        pass
+
+
+class MatrixRenderer(Renderer):
+    def render(self, rels: Relations):
+        print(rels.system_organization_matrix())
+
+
+class PlantUmlRenderer(Renderer):
     def __init__(
         self,
         diagram,

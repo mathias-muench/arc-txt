@@ -1,6 +1,6 @@
 import csv
 
-from PlantUmlRenderer import PlantUmlRenderer
+from PlantUmlRenderer import PlantUmlRenderer, MatrixRenderer
 from Relations import Relations
 from SolutionBuildingBlocks import SolutionBuildingBlocks
 from ArcGaps import ArcGaps
@@ -21,6 +21,7 @@ if __name__ == "__main__":
     gaps = ArcGaps(base, rels)
     with open("C4_Context Diagram Sample - bigbankplc-landscape.puml", "w") as f:
         f.write(rels.render(PlantUmlRenderer("landscape", sbbs, gaps)))
+    rels.render(MatrixRenderer())
     rels = Relations(read_tsv("C4_Container Diagram Sample - bigbankplc.tsv"))
     with open("C4_Container Diagram Sample - bigbankplc.puml", "w") as f:
         f.write(rels.render(PlantUmlRenderer("landscape", sbbs, gaps)))
