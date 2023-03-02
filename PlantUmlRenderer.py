@@ -12,8 +12,18 @@ class Renderer:
 
 
 class MatrixRenderer(Renderer):
+    def __init__(self, solution_building_blocks):
+        self._solution_building_blocks = solution_building_blocks
+
     def render(self, rels: Relations):
-        print(rels.system_organization_matrix())
+        e = [
+                self._solution_building_blocks.sbb_list[i]["Label"]
+                for i in rels.used_sbbs()
+                if self._solution_building_blocks.sbb_list[i]["Type"] == "System"
+            ]
+        e.sort()
+        for i in e:
+            print(i)
 
 
 class PlantUmlRenderer(Renderer):
