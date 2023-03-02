@@ -2,41 +2,40 @@ import unittest
 
 
 class Relations:
-    def __init__(self, relations: list):
-        self.rels = dict()
-        for i in relations:
+    def __init__(self, model: list):
+        self.model = dict()
+        for i in model:
             row = i.copy()
             row["Source"] = tuple(i["Source"].split(":"))
             row["Destination"] = tuple(i["Destination"].split(":"))
-            self.rels[(row["Source"], row["Destination"])] = row
-        self.aggregations = self._aggregations()
+            self.model[(row["Source"], row["Destination"])] = row
+        self.elements: set = set(self.used_sbbs())
+        self.associations: set = {
+            k for k, v in self.model.items() if v["Label"] != "__Aggregation__"
+        }
+        self.aggregations: set = {
+            k for k, v in self.model.items() if v["Label"] == "__Aggregation__"
+        }
 
     def render(self, renderer):
         return renderer.render(self)
 
-    def _aggregations(self) -> set:
-        return {
-            (i["Source"], i["Destination"])
-            for i in self.rels.values()
-            if i["Label"] == "__Aggregation__"
-        }
-
     def system_organization_matrix(self) -> dict:
         owns = {
             (i["Destination"], i["Source"]): "owns"
-            for i in self.rels.values()
+            for i in self.model.values()
             if i["Source"][0] == "System" and i["Destination"][0] == "Enterprise"
         }
         uses = {
             ({s: e for e, s in owns}[i["Source"]], i["Destination"]): "uses"
-            for i in self.rels.values()
+            for i in self.model.values()
             if i["Source"][0] == "System" and i["Destination"][0] == "System"
         }
         return {**uses, **owns}
 
     def used_sbbs(self) -> list:
         coll: dict = dict()
-        for s, d in self.rels.keys():
+        for s, d in self.model.keys():
             for t, n, v in [s, d]:
                 if (t, n) not in coll:
                     coll[(t, n)] = list()
@@ -74,15 +73,15 @@ class TestRelations(unittest.TestCase):
             },
         ]
         rels = Relations(relations)
-        self.assertListEqual(
-            rels.used_sbbs(),
-            [
+        self.assertSetEqual(
+            rels.elements,
+            {
                 ("SBB", "SBB1", "1"),
                 ("SBB", "SBB2", "1"),
                 ("SBB", "SBB3", "2"),
                 ("SBB", "SBB4", "1"),
                 ("SBB", "SBB5", "1"),
-            ],
+            },
         )
 
     def test_aggregations(self):

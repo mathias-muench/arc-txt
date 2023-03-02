@@ -18,7 +18,7 @@ class MatrixRenderer(Renderer):
     def render(self, rels: Relations):
         e = [
                 self._solution_building_blocks.sbb_list[i]["Label"]
-                for i in rels.used_sbbs()
+                for i in rels.elements
                 if self._solution_building_blocks.sbb_list[i]["Type"] == "System"
             ]
         e.sort()
@@ -44,12 +44,15 @@ class PlantUmlRenderer(Renderer):
             lstrip_blocks=True,
         )
 
-    def _render_sbbs(self, rels):
+    def _render_sbbs(self, rels: Relations):
         return self._env.get_template("sbbs.j2").render(
             diagram=self.diagram,
             techn="Authentication",
             sbbs=self._solution_building_blocks.sbb_list,
-            rels=rels,
+            model=rels.model,
+            elements=sorted(rels.elements),
+            associations=sorted(rels.associations),
+            aggregations=sorted(rels.aggregations),
             sbb_tags={i: "gap" for i in self.gaps.sbb_gaps()} if self.gaps else None,
             rel_tags={i: "gap" for i in self.gaps.rel_gaps()} if self.gaps else None,
         )

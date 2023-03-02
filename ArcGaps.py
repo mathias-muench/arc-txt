@@ -8,13 +8,13 @@ class ArcGaps:
         self.target = target
 
     def sbb_gaps(self) -> set:
-        b = set(self.baseline.used_sbbs())
-        t = set(self.target.used_sbbs())
+        b = set(self.baseline.elements)
+        t = set(self.target.elements)
         return t - b
 
     def rel_gaps(self) -> set:
-        b = set(self.baseline.rels)
-        t = set(self.target.rels)
+        b = set(self.baseline.model)
+        t = set(self.target.model)
         return t - b
 
 
