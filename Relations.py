@@ -9,7 +9,7 @@ class Relations:
             row["Source"] = tuple(i["Source"].split(":"))
             row["Destination"] = tuple(i["Destination"].split(":"))
             self.model[(row["Source"], row["Destination"])] = row
-        self.elements: set = set(self.used_sbbs())
+        self.elements: dict = self.used_sbbs()
         self.associations: set = {
             k for k, v in self.model.items() if v["Label"] != "__Aggregation__"
         }
@@ -33,18 +33,18 @@ class Relations:
         }
         return {**uses, **owns}
 
-    def used_sbbs(self) -> list:
+    def used_sbbs(self) -> dict:
         coll: dict = dict()
         for s, d in self.model.keys():
             for t, n, v in [s, d]:
                 if (t, n) not in coll:
                     coll[(t, n)] = list()
                 coll[(t, n)].append(int(v))
-        used = list()
+        used = dict()
         for t, n in coll.keys():
             i = (t, n, str(max(coll[(t, n)])))
-            if i not in used:
-                used.append(i)
+            if (i[0:-1]) not in used:
+                used[i[0:-1]] = i
         return used
 
 
@@ -73,14 +73,14 @@ class TestRelations(unittest.TestCase):
             },
         ]
         rels = Relations(relations)
-        self.assertSetEqual(
+        self.assertDictEqual(
             rels.elements,
             {
-                ("SBB", "SBB1", "1"),
-                ("SBB", "SBB2", "1"),
-                ("SBB", "SBB3", "2"),
-                ("SBB", "SBB4", "1"),
-                ("SBB", "SBB5", "1"),
+                ("SBB", "SBB1"): ("SBB", "SBB1", "1"),
+                ("SBB", "SBB2"): ("SBB", "SBB2", "1"),
+                ("SBB", "SBB3"): ("SBB", "SBB3", "2"),
+                ("SBB", "SBB4"): ("SBB", "SBB4", "1"),
+                ("SBB", "SBB5"): ("SBB", "SBB5", "1"),
             },
         )
 
