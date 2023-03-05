@@ -7,10 +7,10 @@
 
 {% macro open(id) %}
 {% if id %}
-{% set sbb = sbbs[id] %}
+{% set sbb = sbbs[aggregates[id]] %}
 {% set parent = aggregations | selectattr(0, "equalto", id) | map(attribute=1) | first %}
 {{ open(parent) -}}
-{{ boundaries[sbb.Type] }}({{ "_".join(id[:-1]) }}, "{{ sbb.Label }}") {
+{{ boundaries[sbb.Type] }}({{ "_".join(id) }}, "{{ sbb.Label }}") {
 {% endif %}
 {% endmacro -%}
 
@@ -23,16 +23,15 @@
 {% endif %}
 {% endmacro -%}
 
-{% set aggregates = aggregations | map(attribute=1) | list %}
-{% for id in elements | reject("in", aggregates) %}
-{% set sbb = sbbs[id] %}
-{% set parent = aggregations | selectattr(0, "equalto", id) | map(attribute=1) | first %}
+{% for k, v in elements.items() %}
+{% set sbb = sbbs[v] %}
+{% set parent = aggregations | selectattr(0, "equalto", k) | map(attribute=1) | first %}
 {{ open(parent) -}}
-{{ sbb.Type }}({{ "_".join(id[:-1]) }}, "{{ sbb.Label }}", $descr="{{ sbb.Description }}", $tags="{{ sbb_tags[id] }}")
+{{ sbb.Type }}({{ "_".join(k) }}, "{{ sbb.Label }}", $descr="{{ sbb.Description }}", $tags="{{ sbb_tags[v] }}")
 {{ close(parent) }}
 {% endfor %}
 
 {% for id in associations %}
-{% set rel = model[id] %}
-Rel({{ "_".join(rel.Source[:-1]) }}, {{ "_".join(rel.Destination[:-1]) }}, "{{ rel.Label }}", $techn="{{ rel[techn] }}", $tags="{{ rel_tags[id] }}")
+{% set rel = relations[id] %}
+Rel({{ "_".join(id[0]) }}, {{ "_".join(id[1]) }}, "{{ rel.Label }}", $techn="{{ rel[techn] }}", $tags="{{ rel_tags[id] }}")
 {% endfor %}

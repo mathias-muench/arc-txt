@@ -4,8 +4,8 @@ from Relations import Relations
 
 class ArcGaps:
     def __init__(self, baseline: Relations, target: Relations):
-        self.baseline = baseline
-        self.target = target
+        self.baseline: Relations = baseline
+        self.target: Relations = target
 
     def sbb_gaps(self) -> set:
         b = set(self.baseline.elements.values())
@@ -13,8 +13,8 @@ class ArcGaps:
         return t - b
 
     def rel_gaps(self) -> set:
-        b = set(self.baseline.model)
-        t = set(self.target.model)
+        b = set(self.baseline.aggregations | self.baseline.associations)
+        t = set(self.target.aggregations | self.target.associations)
         return t - b
 
 
@@ -56,8 +56,7 @@ class TestArcGaps(unittest.TestCase):
             self.gaps.rel_gaps(),
             set(
                 [
-                    (("Person", "sbb4", "0"), ("System", "ATM", "0")),
-                    (("Person", "sbb4", "0"), ("System", "banking_system", "1")),
+                    (("Person", "sbb4"), ("System", "ATM")),
                 ]
             ),
         )

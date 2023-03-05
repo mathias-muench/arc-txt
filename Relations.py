@@ -3,18 +3,28 @@ import unittest
 
 class Relations:
     def __init__(self, model: list):
-        self.model = dict()
+        m = dict()
         for i in model:
             row = i.copy()
             row["Source"] = tuple(i["Source"].split(":"))
             row["Destination"] = tuple(i["Destination"].split(":"))
-            self.model[(row["Source"], row["Destination"])] = row
-        self.elements: dict = self.used_sbbs()
+            m[(row["Source"], row["Destination"])] = row
+        self.relations: dict = {(k[0][0:-1], k[1][0:-1]): v for k, v in m.items()}
         self.associations: set = {
-            k for k, v in self.model.items() if v["Label"] != "__Aggregation__"
+            k for k, v in self.relations.items() if v["Label"] != "__Aggregation__"
         }
         self.aggregations: set = {
-            k for k, v in self.model.items() if v["Label"] == "__Aggregation__"
+            k for k, v in self.relations.items() if v["Label"] == "__Aggregation__"
+        }
+        self.elements: dict = {
+            k: v
+            for k, v in self.used_sbbs(m).items()
+            if k not in {j[1] for j in self.aggregations}
+        }
+        self.aggregates: dict = {
+            k: v
+            for k, v in self.used_sbbs(m).items()
+            if k not in {j[1] for j in self.associations}
         }
 
     def render(self, renderer):
@@ -22,20 +32,21 @@ class Relations:
 
     def system_organization_matrix(self) -> dict:
         owns = {
-            (i["Destination"], i["Source"]): "owns"
-            for i in self.model.values()
-            if i["Source"][0] == "System" and i["Destination"][0] == "Enterprise"
+            (i[1], i[0]): "owns"
+            for i in self.aggregations
+            if i[0][0] == "System" and i[1][0] == "Enterprise"
         }
         uses = {
-            ({s: e for e, s in owns}[i["Source"]], i["Destination"]): "uses"
-            for i in self.model.values()
-            if i["Source"][0] == "System" and i["Destination"][0] == "System"
+            ({s: e for e, s in owns}[i[0]], i[1]): "uses"
+            for i in self.associations
+            if i[0][0] == "System" and i[1][0] == "System"
         }
         return {**uses, **owns}
 
-    def used_sbbs(self) -> dict:
+    @staticmethod
+    def used_sbbs(model: dict) -> dict:
         coll: dict = dict()
-        for s, d in self.model.keys():
+        for s, d in model.keys():
             for t, n, v in [s, d]:
                 if (t, n) not in coll:
                     coll[(t, n)] = list()
@@ -98,9 +109,7 @@ class TestRelations(unittest.TestCase):
             },
         ]
         rels = Relations(relations)
-        self.assertSetEqual(
-            rels.aggregations, {(("SBB", "SBB1", "1"), ("SBB", "SBB2", "1"))}
-        )
+        self.assertSetEqual(rels.aggregations, {(("SBB", "SBB1"), ("SBB", "SBB2"))})
 
     def test_system_organization_matrix(self):
         relations = [
@@ -134,8 +143,8 @@ class TestRelations(unittest.TestCase):
         self.assertDictEqual(
             rels.system_organization_matrix(),
             {
-                (("Enterprise", "SBB2", "1"), ("System", "SBB1", "1")): "owns",
-                (("Enterprise", "SBB4", "1"), ("System", "SBB3", "1")): "owns",
-                (("Enterprise", "SBB2", "1"), ("System", "SBB3", "1")): "uses",
+                (("Enterprise", "SBB2"), ("System", "SBB1")): "owns",
+                (("Enterprise", "SBB4"), ("System", "SBB3")): "owns",
+                (("Enterprise", "SBB2"), ("System", "SBB3")): "uses",
             },
         )

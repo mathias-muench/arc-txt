@@ -18,7 +18,7 @@ class MatrixRenderer(Renderer):
     def render(self, rels: Relations):
         e = [
                 self._solution_building_blocks.sbb_list[i]["Label"]
-                for i in rels.elements
+                for i in rels.elements.values()
                 if self._solution_building_blocks.sbb_list[i]["Type"] == "System"
             ]
         e.sort()
@@ -49,8 +49,9 @@ class PlantUmlRenderer(Renderer):
             diagram=self.diagram,
             techn="Authentication",
             sbbs=self._solution_building_blocks.sbb_list,
-            model=rels.model,
-            elements=sorted(rels.elements),
+            relations=rels.relations,
+            elements=rels.elements,
+            aggregates=rels.aggregates,
             associations=sorted(rels.associations),
             aggregations=sorted(rels.aggregations),
             sbb_tags={i: "gap" for i in self.gaps.sbb_gaps()} if self.gaps else None,
