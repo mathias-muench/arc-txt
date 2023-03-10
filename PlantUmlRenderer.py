@@ -16,14 +16,7 @@ class MatrixRenderer(Renderer):
         self._solution_building_blocks = solution_building_blocks
 
     def render(self, rels: Relations):
-        e = [
-                self._solution_building_blocks.sbb_list[i]["Label"]
-                for i in rels.elements.values()
-                if self._solution_building_blocks.sbb_list[i]["Type"] == "System"
-            ]
-        e.sort()
-        for i in e:
-            print(i)
+        pass
 
 
 class PlantUmlRenderer(Renderer):
@@ -54,8 +47,8 @@ class PlantUmlRenderer(Renderer):
             aggregates=rels.aggregates,
             associations=sorted(rels.associations),
             aggregations=sorted(rels.aggregations),
-            sbb_tags={i: "gap" for i in self.gaps.sbb_gaps()} if self.gaps else None,
-            rel_tags={i: "gap" for i in self.gaps.rel_gaps()} if self.gaps else None,
+            sbb_tags={i: "gap" for i in self.gaps.new_building_blocks()} if self.gaps else None,
+            rel_tags={i: "gap" for i in self.gaps.new_relations()} if self.gaps else None,
         )
 
     def render(self, rels) -> str:
