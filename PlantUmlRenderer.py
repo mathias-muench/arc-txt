@@ -16,7 +16,10 @@ class MatrixRenderer(Renderer):
         self._solution_building_blocks = solution_building_blocks
 
     def render(self, rels: Relations):
-        pass
+        sbbs=self._solution_building_blocks.sbb_list
+        bbs={**rels.elements, **rels.aggregates}
+        for k, v in rels.system_organization_matrix().items():
+            print(sbbs[bbs[k[0]]]["Label"], sbbs[bbs[k[1]]]["Label"], v)
 
 
 class PlantUmlRenderer(Renderer):
@@ -38,6 +41,8 @@ class PlantUmlRenderer(Renderer):
         )
 
     def _render_sbbs(self, rels: Relations):
+        bb = {**rels.elements, **rels.aggregates}
+        print({bb[i]: "gap" for i in self.gaps.new_building_blocks()} if self.gaps else None)
         return self._env.get_template("sbbs.j2").render(
             diagram=self.diagram,
             techn="Authentication",
@@ -47,8 +52,8 @@ class PlantUmlRenderer(Renderer):
             aggregates=rels.aggregates,
             associations=sorted(rels.associations),
             aggregations=sorted(rels.aggregations),
-            sbb_tags={i: "gap" for i in self.gaps.new_building_blocks()} if self.gaps else None,
-            rel_tags={i: "gap" for i in self.gaps.new_relations()} if self.gaps else None,
+            sbb_tags={bb[i]: "gap" for i in self.gaps.changed_building_blocks() | self.gaps.new_building_blocks()} if self.gaps else None,
+            rel_tags={i: "gap" for i in self.gaps.changed_relations() | self.gaps.new_relations()} if self.gaps else None,
         )
 
     def render(self, rels) -> str:
